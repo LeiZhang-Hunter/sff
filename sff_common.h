@@ -69,3 +69,13 @@
 #ifndef ZEND_CLOSURES_H
 #include <zend_closures.h>
 #endif
+
+//加载闭包函数的库
+#ifndef SFF_SFF_CONTAINER_H
+#include "sff_interface/sff_container.h"
+#endif
+
+
+#ifndef SFF_SUPER_CONTAINER_H
+#include "tool/super_container.h"
+#endif //SFF_SFF_CONTAINER_H

@@ -65,8 +65,10 @@ if test "$PHP_SFF" != "no"; then
   sff_interface/load_config.c \
   tool/ssf_string.c \
   tool/ssf_route.c \
+  tool/super_container.c \
   sff_interface/ssf_application.c \
   sff_interface/factory_controller.c \
   sff_interface/sff_loader.c \
+  sff_interface/sff_container.c \
   zend_ssf_interface/interface.c, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 fi

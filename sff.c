@@ -46,6 +46,8 @@ PHP_INI_BEGIN()
     STD_PHP_INI_ENTRY("sff.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_sff_globals, sff_globals)
 PHP_INI_END()
 */
+
+
 /* }}} */
 
 /* Remove the following function when you have successfully modified config.m4
@@ -110,6 +112,9 @@ PHP_MINIT_FUNCTION (sff) {
     REGISTER_INI_ENTRIES();
     */
 
+    //加载配置
+    REGISTER_INI_ENTRIES();
+
     //初始化我们定义的全局变量
     ZEND_INIT_MODULE_GLOBALS(sff,sff_globals_init,sff_globals_destroy);
 
@@ -124,6 +129,8 @@ PHP_MINIT_FUNCTION (sff) {
 
     //加载自动加载类
     sff_load_init();
+
+    factory_container_init();
     return SUCCESS;
 }
 /* }}} */
