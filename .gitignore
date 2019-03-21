@@ -24,3 +24,4 @@ config.w32
 config.guess
 mkinstalldirs
 CMakeLists.txt
+.libs
