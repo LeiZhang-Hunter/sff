@@ -47,6 +47,7 @@ typedef struct _sff_container{
     char* childlogdir;
     int minfds;
     int minprocs;
+    
     CONTAINER_BOOL nocleanup;
     //打开php配置文件
     CONTAINER_BOOL (*set_container_config)(struct _sff_container* handle,zend_string *config_key,zval* config_item);//设置容器的配置

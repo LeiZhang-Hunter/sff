@@ -38,9 +38,6 @@ PHP_METHOD (SffContainer, setConfig)
                 }
                 container_instance.set_container_config(&container_instance,config_key,config_item);
             } ZEND_HASH_FOREACH_END();
-
-//    php_printf("%s\n",container_instance.user);
-//    php_printf("%s\n","end");
 }
 
 //运行容器
@@ -62,4 +59,5 @@ void factory_container_init()
     factory_container_entry = zend_register_internal_class_ex(&factory_container, NULL);
 
     //声明默认模块属性
+
 }

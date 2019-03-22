@@ -15,6 +15,9 @@ CONTAINER_BOOL super_container_init(super_container* handle)
 
     //销毁容器
     handle->destroy = destroy_container;
+
+    //sff进程容器的地址
+
     return CONTAINER_TRUE;
 }
 
