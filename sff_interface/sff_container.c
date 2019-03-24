@@ -47,7 +47,15 @@ PHP_METHOD (SffContainer, run)
 {
 
     //安装信号处理器
+    container_instance.signal_factory->add_signal_handle(SIGPIPE,SIG_IGN);
 
+    container_instance.signal_factory->add_signal_handle(SIGHUP,SIG_IGN);
+
+    container_instance.signal_factory->add_signal_handle(SIGTERM,SIG_IGN);
+
+    container_instance.signal_factory->add_signal_handle(SIGUSR1,SIG_IGN);
+
+    container_instance.signal_factory->add_signal_handle(SIGUSR2,SIG_IGN);
 
     //守护进程开启
     if(container_instance.daemon == SFF_TRUE)
@@ -55,13 +63,15 @@ PHP_METHOD (SffContainer, run)
         container_instance.process_factory->start_daemon();
     }
 
-    while(1);
+    //运行监控
+    container_instance.run();
 }
 
 
+//释放掉内存
 PHP_METHOD (SffContainer, __destruct)
 {
-
+    container_instance.destroy();
 }
 
 void factory_container_init()

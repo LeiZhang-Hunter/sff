@@ -39,7 +39,9 @@ PHP_INI_END()
 #define CONTAINER_CONFIG_MINFDS "minfds"
 #define CONTAINER_CONFIG_MINPROCS   "minprocs"
 #define CONTAINER_CONFIG_DAEMON   "daemon"
-
+#define CONTAINER_IP   "container_ip"
+#define CONTAINER_PORT "container_port"
+#define CONTAINER_PROCESS_POOL "process_pool"
 //定义一个结构体
 typedef struct{
     char *user;//container的运行用户
@@ -59,11 +61,22 @@ typedef struct{
     //初始化状态，这个结构体只可以被实例化一次除非释放掉
     int init_state;
 
+    //监听的ip地址
+    char *container_ip;
+
+    //监听的端口
+    uint16_t container_port;
+
     CONTAINER_BOOL nocleanup;
     //打开php配置文件
     CONTAINER_BOOL (*set_container_config)(zend_string *config_key,zval* config_item);//设置容器的配置
 
     sff_worker *process_factory;
+
+    sff_signal_handle *signal_factory;
+
+    //运行容器
+    CONTAINER_BOOL (*run)();//设置容器的配置
 
     //销毁容器
     CONTAINER_BOOL (*destroy)();//设置容器的配置
@@ -90,6 +103,9 @@ CONTAINER_BOOL super_container_init();
 
 //设置容器的配置
 CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item);
+
+//运行容器
+CONTAINER_BOOL container_run();
 
 //销毁容器
 CONTAINER_BOOL destroy_container();

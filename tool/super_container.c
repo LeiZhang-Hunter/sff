@@ -20,14 +20,24 @@ CONTAINER_BOOL super_container_init()
     //初始化容器配置
     container_instance.set_container_config = set_container_config;
 
-    //销毁容器
-    container_instance.destroy = destroy_container;
+
 
     //sff进程容器的地址
     container_instance.process_factory = emalloc(sizeof(sff_worker));
 
     //初始化工作者容器
     sff_worker_init();
+
+    //初始化信号处理器的地址
+    container_instance.signal_factory = emalloc(sizeof(sff_signal_handle));
+
+    //初始化这个结构体
+    init_signal_handle();
+
+    container_instance.run = container_run;
+
+    //销毁容器
+    container_instance.destroy = destroy_container;
     return CONTAINER_TRUE;
 }
 
@@ -79,8 +89,6 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item)
     }
 
     if (strcmp(CONTAINER_CONFIG_DAEMON, ZSTR_VAL(config_key)) == 0) {
-        //php_printf("%ld\n",config_item->value.lval);
-        //php_printf("%d\n",222);
         if(Z_TYPE(*config_item)== IS_TRUE)
         {
             container_instance.daemon = 1;
@@ -88,6 +96,35 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item)
             container_instance.daemon = 0;
         }
     }
+
+    //加入容器的地址
+    if (strcmp(CONTAINER_IP, ZSTR_VAL(config_key)) == 0) {
+        SET_CONTAINER_CONFIG_STR(container_instance,container_ip,config_item);
+    }
+
+    //加入容器的端口
+    if (strcmp(CONTAINER_PORT, ZSTR_VAL(config_key)) == 0) {
+        if(Z_TYPE(*config_item) == IS_LONG)
+        {
+            zval new_item;
+            ZVAL_COPY(&new_item,config_item);
+            SET_CONTAINER_CONFIG_INT(container_instance,container_port,(&new_item));
+        }else{
+            php_printf("%d\n",Z_TYPE(*config_item));
+        }
+    }
+//
+//    //加入需要生产的进程
+//    if (strcmp(CONTAINER_PROCESS_POOL, ZSTR_VAL(config_key)) == 0) {
+//
+//    }
+}
+
+//开始运行容器
+CONTAINER_BOOL container_run()
+{
+
+    return CONTAINER_TRUE;
 }
 
 CONTAINER_BOOL destroy_container()
@@ -99,6 +136,7 @@ CONTAINER_BOOL destroy_container()
     efree(container_instance.pidfile);
     efree(container_instance.childlogdir);
     efree(container_instance.process_factory);
+    efree(container_instance.signal_factory);
     return CONTAINER_TRUE;
 }
 

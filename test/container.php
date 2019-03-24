@@ -3,6 +3,8 @@
 $container = new SffContainer();
 $container->setConfig([
     "user"=>"root",
-    "daemon"=>true,
+    "daemon"=>false,
+    "container_ip"=>"127.0.0.1",
+    "container_port"=>9000
 ]);
-$container->run();
+$a = $container->run();
