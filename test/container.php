@@ -2,6 +2,7 @@
 
 $container = new SffContainer();
 $container->setConfig([
-    "user"=>"root"
+    "user"=>"root",
+    "daemon"=>true,
 ]);
-var_dump($container);
+$container->run();

@@ -1,7 +1,10 @@
 //
 // Created by root on 18-11-18.
 //
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
+
+#endif
 //#include "sff_string.h"
 //init sff string
 //#include <stdio.h>

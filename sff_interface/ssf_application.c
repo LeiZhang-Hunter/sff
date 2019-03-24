@@ -1,7 +1,10 @@
 //
 // Created by zhanglei on 19-2-20.
 //
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
+
+#endif
 //加载路由包 放在全局位置
 sff_route_pack route_pack;
 sff_route_pack *route_factory;

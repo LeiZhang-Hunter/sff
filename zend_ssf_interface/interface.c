@@ -3,7 +3,10 @@
 //
 
 //check zval is function
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
+
+#endif
 int ssf_check_zval_function(zval* check_param)
 {
     if(!check_param)

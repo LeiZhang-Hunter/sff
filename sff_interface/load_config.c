@@ -1,7 +1,10 @@
 //
 // Created by root on 18-11-18.
 //
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
+
+#endif
 
 
 const zend_function_entry config_class_struct[] = {

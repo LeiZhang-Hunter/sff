@@ -1,7 +1,10 @@
 //
 // Created by root on 18-12-3.
 //
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
+
+#endif
 
 
 //初始化路由的句柄

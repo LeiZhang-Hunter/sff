@@ -7,15 +7,11 @@
 
 #endif //SFF_SFF_PROCESS_H
 
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
-
-#ifndef	_FCNTL_H
-#include <fcntl.h>
 #endif
 
-#ifndef	_SYS_WAIT_H
-#include <sys/wait.h>
-#endif
+
 
 typedef struct _worker_process{
     //进程号
@@ -31,7 +27,7 @@ typedef struct _worker_process{
 typedef struct _sff_worker{
 
     //创建一个守护进程
-    SFF_BOOL (*start_daemon)(struct _sff_worker* process_handle);
+    SFF_BOOL (*start_daemon)();
 
     //创建一个进程
     SFF_BOOL (*spawn)();
@@ -48,9 +44,9 @@ typedef struct _sff_worker{
 }sff_worker;
 
 //初始化进程
-SFF_BOOL sff_process_init(sff_worker* process_handle);
+SFF_BOOL sff_worker_init();
 
-SFF_BOOL start_daemon(sff_worker* process_handle);
+SFF_BOOL start_daemon();
 
 SFF_BOOL spawn();
 

@@ -2,6 +2,10 @@
 // Created by zhanglei on 19-3-19.
 //
 
+#ifndef SFF_SSF_COMMON_H
+#include "../sff_common.h"
+#endif
+
 #ifndef SFF_SUPER_CONTAINER_H
 #define SFF_SUPER_CONTAINER_H
 
@@ -34,9 +38,10 @@ PHP_INI_END()
 #define CONTAINER_CONFIG_CHILDLOGDIR    "childlogdir"
 #define CONTAINER_CONFIG_MINFDS "minfds"
 #define CONTAINER_CONFIG_MINPROCS   "minprocs"
+#define CONTAINER_CONFIG_DAEMON   "daemon"
 
 //定义一个结构体
-typedef struct _sff_container{
+typedef struct{
     char *user;//container的运行用户
     char *umask;
     char *directory;
@@ -47,38 +52,47 @@ typedef struct _sff_container{
     char* childlogdir;
     int minfds;
     int minprocs;
-    
+
+    //是否是守护进程
+    int daemon;
+
+    //初始化状态，这个结构体只可以被实例化一次除非释放掉
+    int init_state;
+
     CONTAINER_BOOL nocleanup;
     //打开php配置文件
-    CONTAINER_BOOL (*set_container_config)(struct _sff_container* handle,zend_string *config_key,zval* config_item);//设置容器的配置
+    CONTAINER_BOOL (*set_container_config)(zend_string *config_key,zval* config_item);//设置容器的配置
+
+    sff_worker *process_factory;
 
     //销毁容器
-    CONTAINER_BOOL (*destroy)(struct _sff_container* handle);//设置容器的配置
+    CONTAINER_BOOL (*destroy)();//设置容器的配置
 
 }super_container;
+
 
 #define SET_CONTAINER_CONFIG_STR(handle,key,item) \
 if (Z_TYPE(*item) == IS_STRING){\
     char* user_name = emalloc(sizeof(char)*255);\
     bzero(user_name,sizeof(char)*255);\
     strcpy(user_name,Z_STRVAL(*item));\
-    handle->key=user_name;\
+    handle.key=user_name;\
 }
 
 #define SET_CONTAINER_CONFIG_INT(handle,key,item) \
 if (Z_TYPE(*item) == IS_INDIRECT){\
-    handle->key = item->value.lval;\
+    handle.key = item->value.lval;\
 }
 
 //初始化super_container结构体
-CONTAINER_BOOL super_container_init(super_container* handle);
+CONTAINER_BOOL super_container_init();
 
 
 //设置容器的配置
-CONTAINER_BOOL set_container_config(super_container* handle,zend_string *config_key,zval* config_item);
+CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item);
 
 //销毁容器
-CONTAINER_BOOL destroy_container(super_container* handle);
+CONTAINER_BOOL destroy_container();
 
 
 

@@ -1,7 +1,10 @@
 //
 // Created by root on 18-11-13.
 //
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
+
+#endif
 
 void include_file(const char *filename, zval *return_value_ptr) {
     zend_file_handle include_file_handle;

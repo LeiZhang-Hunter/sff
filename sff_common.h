@@ -12,13 +12,21 @@
 #include "ext/standard/info.h"
 #include "php_sff.h"
 #include "php_main.h"
+#ifndef	_FCNTL_H
+#include <fcntl.h>
+#endif
 
+#ifndef	_SYS_WAIT_H
+#include <sys/wait.h>
+#endif
 
 
 //引入php内核异常处理
 #ifndef ZEND_EXCEPTIONS_H
 #include <zend_exceptions.h>
 #endif
+
+
 
 #ifndef SFF_LOAD_FILE_H
 #include "tool/load_file.h"
@@ -70,12 +78,27 @@
 #include <zend_closures.h>
 #endif
 
+//加载信号处理池
+#ifndef SFF_SFF_CONTAINER_H
+#include "tool/sff_signal_handle.h"
+#endif
+
+
+
+
+#ifndef SFF_SFF_PROCESS_H
+#include "tool/sff_process.h"
+#endif
+
+#ifndef SFF_SUPER_CONTAINER_H
+#include "tool/super_container.h"
+#endif //SFF_SFF_CONTAINER_H
+
+extern super_container container_instance;
+
 //加载闭包函数的库
 #ifndef SFF_SFF_CONTAINER_H
 #include "sff_interface/sff_container.h"
 #endif
 
 
-#ifndef SFF_SUPER_CONTAINER_H
-#include "tool/super_container.h"
-#endif //SFF_SFF_CONTAINER_H

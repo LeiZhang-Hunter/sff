@@ -1,8 +1,10 @@
 //
 // Created by zhanglei on 19-3-15.
 //
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
 
+#endif
 const zend_function_entry factory_container_struct[] = {
         PHP_ME(SffContainer, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
         PHP_ME(SffContainer, setConfig, NULL,  ZEND_ACC_PUBLIC)
@@ -11,21 +13,21 @@ const zend_function_entry factory_container_struct[] = {
         PHP_FE_END
 };
 
-super_container container_instance;
+
 
 
 //初始化容器配置
 PHP_METHOD (SffContainer, __construct)
 {
     //初始化这一个结构体
-    super_container_init(&container_instance);
+    super_container_init();
 }
 
 //设置容器的配置选项
 PHP_METHOD (SffContainer, setConfig)
 {
     zval *config = NULL;//this opetion begin single model
-    ZEND_PARSE_PARAMETERS_START(0, 1)
+    ZEND_PARSE_PARAMETERS_START(1, 1)
             Z_PARAM_ARRAY(config)
     ZEND_PARSE_PARAMETERS_END();
 
@@ -36,7 +38,7 @@ PHP_METHOD (SffContainer, setConfig)
                 if (config_key == NULL) {
                     continue;
                 }
-                container_instance.set_container_config(&container_instance,config_key,config_item);
+                container_instance.set_container_config(config_key,config_item);
             } ZEND_HASH_FOREACH_END();
 }
 
@@ -44,6 +46,16 @@ PHP_METHOD (SffContainer, setConfig)
 PHP_METHOD (SffContainer, run)
 {
 
+    //安装信号处理器
+
+
+    //守护进程开启
+    if(container_instance.daemon == SFF_TRUE)
+    {
+        container_instance.process_factory->start_daemon();
+    }
+
+    while(1);
 }
 
 

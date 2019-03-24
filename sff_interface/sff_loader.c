@@ -2,7 +2,10 @@
 // Created by zhanglei on 19-2-23.
 //
 
+#ifndef SFF_SSF_COMMON_H
 #include "../sff_common.h"
+
+#endif
 
 
 const zend_function_entry sff_loader_struct[] = {

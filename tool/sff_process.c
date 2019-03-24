@@ -1,17 +1,24 @@
 //
 // Created by zhanglei on 19-3-22.
 //
-#include "sff_process.h"
-SFF_BOOL sff_process_init(sff_worker* process_handle)
-{
+#ifndef SFF_SSF_COMMON_H
+#include "../sff_common.h"
+#endif
 
-    process_handle->start_daemon = start_daemon;
-    process_handle->monitor = monitor;
-    process_handle->spawn = spawn;
+SFF_BOOL sff_worker_init()
+{
+    if(!container_instance.process_factory)
+    {
+        return SFF_FALSE;
+    }
+    bzero(container_instance.process_factory,sizeof(sff_worker));
+    container_instance.process_factory->start_daemon = start_daemon;
+    container_instance.process_factory->monitor = monitor;
+    container_instance.process_factory->spawn = spawn;
     return SFF_TRUE;
 }
 
-SFF_BOOL start_daemon(sff_worker* process_handle)
+SFF_BOOL start_daemon()
 {
 
     pid_t pid;
@@ -45,7 +52,7 @@ SFF_BOOL start_daemon(sff_worker* process_handle)
     chdir("/");
 
     //创造空闲的描述符
-    for(i=0;i<process_handle->minfds;i++)
+    for(i=0;i<3;i++)
     {
         close(i);
     }
