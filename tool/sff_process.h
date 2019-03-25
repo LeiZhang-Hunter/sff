@@ -2,6 +2,8 @@
 // Created by zhanglei on 19-3-22.
 //
 
+#include <ext/sff/sff_common.h>
+
 #ifndef SFF_SFF_PROCESS_H
 #define SFF_SFF_PROCESS_H
 
@@ -22,7 +24,30 @@ typedef struct _worker_process{
 
     //运行状态
     int state;
+
+    //重启的指令
+    char* start_cmd;
+
+    //关闭的指令
+    char* stop_cmd;
+
+    //重载
+    char* reload_cmd;
+
+
+
 }worker_process;
+
+//进程池
+typedef struct _worker_process_pool
+{
+    //内存池尺度
+    size_t init_pool_size;
+    //块大小
+    size_t block_size;
+    //块数量
+    size_t block_number;
+}worker_process_pool;
 
 typedef struct _sff_worker{
 
@@ -39,7 +64,6 @@ typedef struct _sff_worker{
     int minfds;
 
     //进程池
-    worker_process** process_collect;
 
 }sff_worker;
 

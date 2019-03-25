@@ -38,6 +38,11 @@ CONTAINER_BOOL super_container_init()
 
     //销毁容器
     container_instance.destroy = destroy_container;
+
+    //初始化进程池
+
+
+
     return CONTAINER_TRUE;
 }
 
