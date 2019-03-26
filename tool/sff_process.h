@@ -1,9 +1,6 @@
 //
 // Created by zhanglei on 19-3-22.
 //
-
-#include <ext/sff/sff_common.h>
-
 #ifndef SFF_SFF_PROCESS_H
 #define SFF_SFF_PROCESS_H
 
@@ -13,6 +10,55 @@
 #include "../sff_common.h"
 #endif
 
+//内存池管理
+typedef struct _process_pool_manage
+{
+    void* mem;
+
+    //申请一块内存快
+    int (*mem_block_alloc)();
+
+    //释放一块内存块
+    int (*free)();
+
+    //销毁整个内存池
+    int (*destroy_pool)(struct _process_pool_manage* manage);
+
+}process_pool_manage;
+
+//内存块结构体
+typedef struct _process_block{
+
+    //上一个地址
+    struct _process_block *prev;
+
+    //下一个地址
+    struct _process_block *next;
+
+    //数据地址
+    char data[0];
+
+}process_block;
+
+//内存池结构体
+typedef struct _process_pool{
+
+    //总内存大小
+    size_t memory_size;
+
+    //块大小
+    uint32_t block_size;
+
+    //块的数量
+    uint32_t block_number;
+
+    //头部地址
+    process_block* head;
+
+    //尾部地址
+    process_block* tail;
+
+}process_pool;
 
 
 typedef struct _worker_process{
@@ -66,6 +112,15 @@ typedef struct _sff_worker{
     //进程池
 
 }sff_worker;
+
+process_pool_manage* process_pool_manage_init(uint32_t block_size);
+
+int process_pool_alloc();
+
+int process_pool_free();
+
+int process_pool_destroy(process_pool_manage* manage);
+
 
 //初始化进程
 SFF_BOOL sff_worker_init();

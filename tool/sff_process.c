@@ -96,3 +96,56 @@ SFF_BOOL monitor()
         WIFSIGNALED(stat);
     }
 }
+
+//初始化内存地址
+process_pool_manage* process_pool_manage_init(uint32_t block_size)
+{
+    //计算内存池需要的字节数
+    size_t pool_size = sizeof(process_pool_manage) + sizeof(process_pool) + block_size * sizeof(process_block);
+
+    //初始化的起始地址
+    void* mem = malloc(pool_size);
+
+    //获取内存尺的首地址
+    process_pool* pool = (process_pool*)((char*)mem + sizeof(process_pool_manage));
+
+    //初始化地址内容
+    bzero(pool,sizeof(process_pool));
+
+    //块的大小
+    pool->block_size = sizeof(process_block);
+
+    //块的
+    pool->block_number = block_size;
+
+    //总共需要的内存
+    pool->memory_size = block_size * sizeof(process_block);
+
+    //初始化管理器的地址
+    process_pool_manage* manage = mem;
+
+    manage->mem = pool;
+
+    manage->mem_block_alloc = process_pool_alloc;
+
+    manage->free = process_pool_free;
+
+    manage->destroy_pool = process_pool_destroy;
+
+    return manage;
+}
+
+int process_pool_alloc()
+{
+
+}
+
+int process_pool_free()
+{
+
+}
+
+int process_pool_destroy(process_pool_manage* manage)
+{
+    free(manage);
+}
