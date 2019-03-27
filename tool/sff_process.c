@@ -136,10 +136,10 @@ process_pool_manage* process_pool_manage_init(uint32_t block_size)
 }
 
 //申请这一块内存地址
-process_block* process_pool_alloc(process_pool_manage* manage)
+process_block* process_pool_alloc()
 {
     //内存池的地址
-    process_pool* pool = manage->mem;
+    process_pool* pool = container_instance.process_pool_manager->mem;
 
     //程序中没有可以用的内存块了
     if(pool->block_use_num >= pool->block_number)
@@ -209,7 +209,7 @@ void process_pool_debug(process_pool_manage* manage)
 //        printf("%d\n",start->index);
         while(start)
         {
-            printf("%d\n",start->index);
+            php_printf("%s\n",start->process_name);
             start = start->next;
         }
     }

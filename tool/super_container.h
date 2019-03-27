@@ -73,6 +73,8 @@ typedef struct{
 
     sff_worker *process_factory;
 
+    process_pool_manage *process_pool_manager;
+
     sff_signal_handle *signal_factory;
 
     //运行容器

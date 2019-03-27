@@ -40,6 +40,8 @@ PHP_METHOD (SffContainer, setConfig)
                 }
                 container_instance.set_container_config(config_key,config_item);
             } ZEND_HASH_FOREACH_END();
+
+    process_pool_debug(container_instance.process_pool_manager);
 }
 
 //运行容器

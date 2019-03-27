@@ -119,10 +119,39 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item)
         }
     }
 //
-//    //加入需要生产的进程
-//    if (strcmp(CONTAINER_PROCESS_POOL, ZSTR_VAL(config_key)) == 0) {
-//
-//    }
+    //加入需要生产的进程
+    if (strcmp(CONTAINER_PROCESS_POOL, ZSTR_VAL(config_key)) == 0) {
+
+        //计算出要申请的数目
+        int type = Z_TYPE(*config_item);
+        if(Z_TYPE(*config_item) == IS_ARRAY) {
+            uint32_t process_pool_count = (Z_ARRVAL_P(config_item)->nNumUsed);
+            if(process_pool_count)
+            {
+                //初始化内存池
+                container_instance.process_pool_manager = process_pool_manage_init(process_pool_count);
+
+                //循环键值对写入需要操作的命令
+                zend_string *process_config_key;
+                zval *process_config_item;
+                ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(config_item), process_config_key, process_config_item) {
+//                            if (process_config_key == NULL) {
+//                                continue;
+//                            }
+
+                            process_block* slice = process_pool_alloc();
+
+                            //初始化进程名字
+                            bzero(slice->process_name,sizeof(slice->process_name));
+
+                            strcpy(slice->process_name,ZSTR_VAL(process_config_key));
+
+
+                        } ZEND_HASH_FOREACH_END();
+            }
+        }
+
+    }
 }
 
 //开始运行容器

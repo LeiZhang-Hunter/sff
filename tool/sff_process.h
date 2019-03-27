@@ -19,32 +19,15 @@ typedef struct _process_block{
     //下一个地址
     struct _process_block *next;
 
+    char process_name[NAME_MAX];
+
     //数据地址
     char data[0];
 
+    //索引号
     uint16_t index;
 
 }process_block;
-
-//内存池管理
-typedef struct _process_pool_manage
-{
-    void* mem;
-
-    //申请一块内存快
-    process_block* (*mem_block_alloc)(struct _process_pool_manage*);
-
-    //释放一块内存块
-    int (*free)();
-
-    //销毁整个内存池
-    int (*destroy_pool)(struct _process_pool_manage* manage);
-
-
-
-}process_pool_manage;
-
-
 
 //内存池结构体
 typedef struct _process_pool{
@@ -70,9 +53,30 @@ typedef struct _process_pool{
 
 }process_pool;
 
+//内存池管理
+typedef struct _process_pool_manage
+{
+    process_pool* mem;
+
+    //申请一块内存快
+    process_block* (*mem_block_alloc)();
+
+    //释放一块内存块
+    int (*free)();
+
+    //销毁整个内存池
+    int (*destroy_pool)(struct _process_pool_manage* manage);
+
+
+
+}process_pool_manage;
+
+
+
+
 process_pool_manage* process_pool_manage_init(uint32_t block_size);
 
-process_block* process_pool_alloc(process_pool_manage *);
+process_block* process_pool_alloc();
 
 int process_pool_free();
 
@@ -132,11 +136,6 @@ typedef struct _sff_worker{
     //进程池
 
 }sff_worker;
-
-process_pool_manage* process_pool_manage_init(uint32_t block_size);
-
-
-
 
 //初始化进程
 SFF_BOOL sff_worker_init();
