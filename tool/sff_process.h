@@ -10,22 +10,6 @@
 #include "../sff_common.h"
 #endif
 
-//内存池管理
-typedef struct _process_pool_manage
-{
-    void* mem;
-
-    //申请一块内存快
-    int (*mem_block_alloc)();
-
-    //释放一块内存块
-    int (*free)();
-
-    //销毁整个内存池
-    int (*destroy_pool)(struct _process_pool_manage* manage);
-
-}process_pool_manage;
-
 //内存块结构体
 typedef struct _process_block{
 
@@ -38,7 +22,29 @@ typedef struct _process_block{
     //数据地址
     char data[0];
 
+    uint16_t index;
+
 }process_block;
+
+//内存池管理
+typedef struct _process_pool_manage
+{
+    void* mem;
+
+    //申请一块内存快
+    process_block* (*mem_block_alloc)(struct _process_pool_manage*);
+
+    //释放一块内存块
+    int (*free)();
+
+    //销毁整个内存池
+    int (*destroy_pool)(struct _process_pool_manage* manage);
+
+
+
+}process_pool_manage;
+
+
 
 //内存池结构体
 typedef struct _process_pool{
@@ -58,7 +64,21 @@ typedef struct _process_pool{
     //尾部地址
     process_block* tail;
 
+
+    //正在使用的块数
+    uint32_t block_use_num;
+
 }process_pool;
+
+process_pool_manage* process_pool_manage_init(uint32_t block_size);
+
+process_block* process_pool_alloc(process_pool_manage *);
+
+int process_pool_free();
+
+int process_pool_destroy(process_pool_manage* manage);
+
+void process_pool_debug(process_pool_manage* manage);
 
 
 typedef struct _worker_process{
@@ -115,11 +135,7 @@ typedef struct _sff_worker{
 
 process_pool_manage* process_pool_manage_init(uint32_t block_size);
 
-int process_pool_alloc();
 
-int process_pool_free();
-
-int process_pool_destroy(process_pool_manage* manage);
 
 
 //初始化进程

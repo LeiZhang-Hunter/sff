@@ -135,9 +135,57 @@ process_pool_manage* process_pool_manage_init(uint32_t block_size)
     return manage;
 }
 
-int process_pool_alloc()
+//申请这一块内存地址
+process_block* process_pool_alloc(process_pool_manage* manage)
 {
+    //内存池的地址
+    process_pool* pool = manage->mem;
 
+    //程序中没有可以用的内存块了
+    if(pool->block_use_num >= pool->block_number)
+    {
+        return NULL;
+    }
+
+    //如果说头部指针的值为NULL,说明之前并没有申请过内存块
+    if(pool->head == NULL)
+    {
+        //这里我们要初始化这个内存地址
+        pool->head = (process_block*)((char *)pool+sizeof(process_pool));
+
+        //第一次申请自然不会有下一个的指针
+        pool->head->next = NULL;
+
+        //初始化尾部的指针
+        pool->tail = (process_block*)((char *)pool+sizeof(process_pool));
+
+        //初始化内存块的地址
+        bzero(pool->head,sizeof(process_block));
+
+    }else{
+        //旧的尾部块的地址
+        process_block* old_tail_block = pool->tail;
+
+        //现在的块地址
+        process_block* this_block = (process_block*)((char*)old_tail_block+sizeof(process_block));
+
+        //初始化这个块
+        bzero(this_block,sizeof(process_block));
+
+        //上一个块下一个地址变成可这一个块
+        old_tail_block->next = this_block;
+
+        //这一个块的上一个地址是上一个块
+        this_block->prev = old_tail_block;
+
+        //内存池的尾部地址变为最新块的地址
+        pool->tail = this_block;
+
+        //正在使用的内存池+1
+        pool->block_use_num+=1;
+    }
+
+    return pool->tail;
 }
 
 int process_pool_free()
@@ -149,3 +197,22 @@ int process_pool_destroy(process_pool_manage* manage)
 {
     free(manage);
 }
+
+
+//输出池子里所有块的索引
+void process_pool_debug(process_pool_manage* manage)
+{
+    process_pool* pool = manage->mem;
+    if(pool->head)
+    {
+        process_block* start = pool->head;
+//        printf("%d\n",start->index);
+        while(start)
+        {
+            printf("%d\n",start->index);
+            start = start->next;
+        }
+    }
+}
+
+
