@@ -193,9 +193,25 @@ int process_pool_free()
 
 }
 
-int process_pool_destroy(process_pool_manage* manage)
+int process_pool_destroy()
 {
-    free(manage);
+    //依次清除掉所有的命令
+    process_pool* pool = container_instance.process_pool_manager->mem;
+    if(pool->head)
+    {
+        process_block* start = pool->head;
+        while(start)
+        {
+            efree(start->process_name);
+            efree(start->start_cmd);
+            efree(start->stop_cmd);
+            start = start->next;
+        }
+    }
+    //销毁掉整个连接池
+    efree(container_instance.process_pool_manager);
+
+    return SFF_TRUE;
 }
 
 
@@ -203,18 +219,7 @@ int process_pool_destroy(process_pool_manage* manage)
 void process_pool_debug(process_pool_manage* manage)
 {
     process_pool* pool = manage->mem;
-    if(pool->head)
-    {
-        process_block* start = pool->head;
-//        printf("%d\n",start->index);
-        while(start)
-        {
-            php_printf("name:%s\n",start->process_name);
-            php_printf("start:%s\n",start->start_cmd);
-            php_printf("stop:%s\n",start->stop_cmd);
-            start = start->next;
-        }
-    }
+
 }
 
 

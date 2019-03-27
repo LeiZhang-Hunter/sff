@@ -71,7 +71,7 @@ typedef struct _process_pool_manage
     int (*free)();
 
     //销毁整个内存池
-    int (*destroy_pool)(struct _process_pool_manage* manage);
+    int (*destroy_pool)();
 
 
 
@@ -86,7 +86,7 @@ process_block* process_pool_alloc();
 
 int process_pool_free();
 
-int process_pool_destroy(process_pool_manage* manage);
+int process_pool_destroy();
 
 void process_pool_debug(process_pool_manage* manage);
 

@@ -177,6 +177,9 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 //开始运行容器
 CONTAINER_BOOL container_run() {
 
+    //获取到内存池地址
+    process_pool* pool = container_instance.process_pool_manager->mem;
+
     return CONTAINER_TRUE;
 }
 
@@ -189,6 +192,8 @@ CONTAINER_BOOL destroy_container() {
     efree(container_instance.childlogdir);
     efree(container_instance.process_factory);
     efree(container_instance.signal_factory);
+    //销毁掉整个连接池
+    container_instance.process_pool_manager->destroy_pool();
     return CONTAINER_TRUE;
 }
 
