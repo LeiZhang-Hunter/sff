@@ -1,5 +1,5 @@
 <?php
-
+$start = memory_get_usage();
 $container = new SffContainer();
 $container->setConfig([
     "user"=>"root",
@@ -30,3 +30,5 @@ $container->setConfig([
     ]
 ]);
 $a = $container->run();
+$end = memory_get_usage();
+echo $end-$start."\n";
