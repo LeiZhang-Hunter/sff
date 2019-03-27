@@ -39,9 +39,6 @@ CONTAINER_BOOL super_container_init()
     //销毁容器
     container_instance.destroy = destroy_container;
 
-    //初始化进程池
-
-
 
     return CONTAINER_TRUE;
 }
@@ -135,9 +132,9 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item)
                 zend_string *process_config_key;
                 zval *process_config_item;
                 ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(config_item), process_config_key, process_config_item) {
-//                            if (process_config_key == NULL) {
-//                                continue;
-//                            }
+                            if (process_config_key == NULL) {
+                                continue;
+                            }
 
                             process_block* slice = process_pool_alloc();
 
@@ -146,6 +143,32 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item)
 
                             strcpy(slice->process_name,ZSTR_VAL(process_config_key));
 
+                            //如果是数组
+                            if(Z_TYPE(*process_config_item) == IS_ARRAY) {
+
+                                HashTable* process_info = Z_ARRVAL_P(process_config_item);
+
+                                //初始化启动命令
+                                zval* start_cmd_info = zend_hash_str_find(process_info,"start",strlen("start"));
+                                if((start_cmd_info) && Z_TYPE(*start_cmd_info) == IS_STRING)
+                                {
+//                                    php_printf("%s\n",Z_STRVAL(*start_cmd_info));
+                                    bzero(slice->start_cmd, sizeof(slice->start_cmd));
+                                    strcpy(slice->start_cmd, Z_STRVAL(*start_cmd_info));
+                                }
+
+                                //初始化停止命令
+                                zval* stop_cmd_info = zend_hash_str_find(process_info,"stop",strlen("stop"));
+                                if((stop_cmd_info) && Z_TYPE(*stop_cmd_info) == IS_STRING)
+                                {
+//                                    php_printf("%s\n",Z_STRVAL(*stop_cmd_info));
+                                    bzero(slice->stop_cmd, sizeof(slice->stop_cmd));
+                                    strcpy(slice->stop_cmd, Z_STRVAL(*stop_cmd_info));
+                                }
+
+                                //将进程的运行状态设置为0未运行
+                                slice->state = NO_RUNING;
+                            }
 
                         } ZEND_HASH_FOREACH_END();
             }

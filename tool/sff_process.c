@@ -209,7 +209,9 @@ void process_pool_debug(process_pool_manage* manage)
 //        printf("%d\n",start->index);
         while(start)
         {
-            php_printf("%s\n",start->process_name);
+            php_printf("name:%s\n",start->process_name);
+            php_printf("start:%s\n",start->start_cmd);
+            php_printf("stop:%s\n",start->stop_cmd);
             start = start->next;
         }
     }

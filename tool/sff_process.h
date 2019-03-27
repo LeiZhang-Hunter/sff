@@ -10,6 +10,8 @@
 #include "../sff_common.h"
 #endif
 
+#define NO_RUNING 0
+
 //内存块结构体
 typedef struct _process_block{
 
@@ -19,10 +21,14 @@ typedef struct _process_block{
     //下一个地址
     struct _process_block *next;
 
+    //运行状态
+    uint16_t state;
+
     char process_name[NAME_MAX];
 
-    //数据地址
-    char data[0];
+    char stop_cmd[PATH_MAX];
+
+    char start_cmd[PATH_MAX];
 
     //索引号
     uint16_t index;
@@ -84,40 +90,6 @@ int process_pool_destroy(process_pool_manage* manage);
 
 void process_pool_debug(process_pool_manage* manage);
 
-
-typedef struct _worker_process{
-    //进程号
-    pid_t pid;
-
-    //错误码
-    int worker_errno;
-
-    //运行状态
-    int state;
-
-    //重启的指令
-    char* start_cmd;
-
-    //关闭的指令
-    char* stop_cmd;
-
-    //重载
-    char* reload_cmd;
-
-
-
-}worker_process;
-
-//进程池
-typedef struct _worker_process_pool
-{
-    //内存池尺度
-    size_t init_pool_size;
-    //块大小
-    size_t block_size;
-    //块数量
-    size_t block_number;
-}worker_process_pool;
 
 typedef struct _sff_worker{
 
