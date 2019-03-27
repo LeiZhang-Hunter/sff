@@ -24,11 +24,11 @@ typedef struct _process_block{
     //运行状态
     uint16_t state;
 
-    char process_name[NAME_MAX];
+    char *process_name;
 
-    char stop_cmd[PATH_MAX];
+    char *stop_cmd;
 
-    char start_cmd[PATH_MAX];
+    char *start_cmd;
 
     //索引号
     uint16_t index;

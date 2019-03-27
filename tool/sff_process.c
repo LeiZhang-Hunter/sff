@@ -104,7 +104,7 @@ process_pool_manage* process_pool_manage_init(uint32_t block_size)
     size_t pool_size = sizeof(process_pool_manage) + sizeof(process_pool) + block_size * sizeof(process_block);
 
     //初始化的起始地址
-    void* mem = malloc(pool_size);
+    void* mem = emalloc(pool_size);
 
     //获取内存尺的首地址
     process_pool* pool = (process_pool*)((char*)mem + sizeof(process_pool_manage));

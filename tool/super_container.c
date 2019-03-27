@@ -139,9 +139,9 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item)
                             process_block* slice = process_pool_alloc();
 
                             //初始化进程名字
-                            bzero(slice->process_name,sizeof(slice->process_name));
-
-                            strcpy(slice->process_name,ZSTR_VAL(process_config_key));
+                            char* process_name = emalloc(sizeof(ZSTR_VAL(process_config_key)));
+                            strcpy(process_name,ZSTR_VAL(process_config_key));
+                            slice->process_name = process_name;
 
                             //如果是数组
                             if(Z_TYPE(*process_config_item) == IS_ARRAY) {
@@ -152,18 +152,18 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item)
                                 zval* start_cmd_info = zend_hash_str_find(process_info,"start",strlen("start"));
                                 if((start_cmd_info) && Z_TYPE(*start_cmd_info) == IS_STRING)
                                 {
-//                                    php_printf("%s\n",Z_STRVAL(*start_cmd_info));
-                                    bzero(slice->start_cmd, sizeof(slice->start_cmd));
-                                    strcpy(slice->start_cmd, Z_STRVAL(*start_cmd_info));
+                                    char* start_cmd_str = emalloc(sizeof(Z_STRVAL(*start_cmd_info)));
+                                    strcpy(start_cmd_str,Z_STRVAL(*start_cmd_info));
+                                    slice->start_cmd = start_cmd_str;
                                 }
 
                                 //初始化停止命令
                                 zval* stop_cmd_info = zend_hash_str_find(process_info,"stop",strlen("stop"));
                                 if((stop_cmd_info) && Z_TYPE(*stop_cmd_info) == IS_STRING)
                                 {
-//                                    php_printf("%s\n",Z_STRVAL(*stop_cmd_info));
-                                    bzero(slice->stop_cmd, sizeof(slice->stop_cmd));
-                                    strcpy(slice->stop_cmd, Z_STRVAL(*stop_cmd_info));
+                                    char* stop_cmd_str = emalloc(sizeof(Z_STRVAL(*stop_cmd_info)));
+                                    strcpy(stop_cmd_str,Z_STRVAL(*stop_cmd_info));
+                                    slice->stop_cmd = stop_cmd_str;
                                 }
 
                                 //将进程的运行状态设置为0未运行
