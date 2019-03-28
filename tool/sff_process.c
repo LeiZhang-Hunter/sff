@@ -78,6 +78,14 @@ SFF_BOOL spawn()
     {
         return pid;
     }
+
+    //执行闭包函数
+    php_printf("ddd\n");
+
+    //程序运行正常结束
+    exit(0);
+
+    return CONTAINER_TRUE;
 }
 
 //执行程序监控
@@ -85,16 +93,20 @@ SFF_BOOL monitor()
 {
     pid_t pid;
     int stat;
+
+
     pid = waitpid(1,&stat,WNOHANG);
+
 
     if(pid > 0)
     {
         //让进程退出的exit码
         WIFEXITED(stat);
-
         //另进程退出的信号
         WIFSIGNALED(stat);
+        php_printf("%d\n",pid);
     }
+
 }
 
 //初始化内存地址
@@ -219,7 +231,15 @@ int process_pool_destroy()
 void process_pool_debug(process_pool_manage* manage)
 {
     process_pool* pool = manage->mem;
-
+    if(pool->head)
+    {
+        process_block* start = pool->head;
+//        printf("%d\n",start->index);
+        while(start)
+        {
+            start = start->next;
+        }
+    }
 }
 
 

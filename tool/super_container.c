@@ -180,6 +180,45 @@ CONTAINER_BOOL container_run() {
     //获取到内存池地址
     process_pool* pool = container_instance.process_pool_manager->mem;
 
+    int process_count = 0;
+
+    pid_t pid_wait;
+
+    //waitpid返回的结果
+    pid_t ret_pid;
+
+    pid_t pid = 0;
+
+    int stat;
+
+    //循环池子创建进程
+    if(pool->head)
+    {
+        process_block* start = pool->head;
+        while(start)
+        {
+
+
+
+            //堆池子进行循环然后开始生产
+            pid = container_instance.process_factory->spawn();
+            start->pid = pid;
+            start->state = RUNNING;
+
+
+
+            start = start->next;
+
+            //计数器循环+1
+            process_count = process_count+1;
+        }
+    }
+
+
+    while(1) {
+        //开始打开监控
+        container_instance.process_factory->monitor();
+    }
     return CONTAINER_TRUE;
 }
 

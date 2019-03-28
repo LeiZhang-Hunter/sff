@@ -11,6 +11,7 @@
 #endif
 
 #define NO_RUNING 0
+#define RUNNING 1
 
 //内存块结构体
 typedef struct _process_block{
@@ -20,6 +21,8 @@ typedef struct _process_block{
 
     //下一个地址
     struct _process_block *next;
+
+    pid_t pid;
 
     //运行状态
     uint16_t state;
