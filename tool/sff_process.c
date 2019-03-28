@@ -67,21 +67,44 @@ SFF_BOOL start_daemon()
 }
 
 //banner进程
-SFF_BOOL spawn()
+SFF_BOOL spawn(pid_t process_count)
 {
     pid_t pid;
+    char *arg;
+
+    //动态传递参数
+    char* argv[0];
 
     if((pid = fork()) < 0)
     {
+        php_printf("%d\n",111);
         return SFF_FALSE;
     }else if(pid)
     {
         return pid;
     }
+    //偏移指针，找到对应的程序块
+    process_block* block = container_instance.process_pool_manager->mem->head + process_count;
+    block->state = RUNNING;
 
-    //执行闭包函数
-    php_printf("ddd\n");
+    char str[strlen(block->start_cmd)+1];
 
+    strcpy(str,block->start_cmd);
+
+    //解析参数地址
+    char* exec_script=strtok(str," ");
+
+    //计算总数
+    int count = 0;
+    argv[count] = "-f";
+    while((arg = strtok(NULL," ")))
+    {
+        count = count+1;
+        argv[count] = arg;
+    }
+    argv[count+1] = NULL;
+
+    int res = execvp(exec_script,argv);
     //程序运行正常结束
     exit(0);
 
@@ -95,7 +118,7 @@ SFF_BOOL monitor()
     int stat;
 
 
-    pid = waitpid(1,&stat,WNOHANG);
+    pid = waitpid(-1,&stat,WNOHANG);
 
 
     if(pid > 0)

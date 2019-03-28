@@ -100,7 +100,7 @@ typedef struct _sff_worker{
     SFF_BOOL (*start_daemon)();
 
     //创建一个进程
-    SFF_BOOL (*spawn)();
+    SFF_BOOL (*spawn)(pid_t process_count);
 
     //监控进程
     int (*monitor)();
@@ -117,6 +117,11 @@ SFF_BOOL sff_worker_init();
 
 SFF_BOOL start_daemon();
 
-SFF_BOOL spawn();
+/**
+ * 生产进程
+ * @param process_count 这个是进程的index，用于做偏移
+ * @return
+ */
+SFF_BOOL spawn(pid_t process_count);
 
 SFF_BOOL monitor();

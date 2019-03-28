@@ -189,7 +189,6 @@ CONTAINER_BOOL container_run() {
 
     pid_t pid = 0;
 
-    int stat;
 
     //循环池子创建进程
     if(pool->head)
@@ -201,7 +200,7 @@ CONTAINER_BOOL container_run() {
 
 
             //堆池子进行循环然后开始生产
-            pid = container_instance.process_factory->spawn();
+            pid = container_instance.process_factory->spawn(process_count);
             start->pid = pid;
             start->state = RUNNING;
 
