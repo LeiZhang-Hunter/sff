@@ -123,11 +123,32 @@ SFF_BOOL monitor()
 
     if(pid > 0)
     {
-        //让进程退出的exit码
-        WIFEXITED(stat);
-        //另进程退出的信号
-        WIFSIGNALED(stat);
-        php_printf("%d\n",pid);
+
+        //从进程池里获取到对应的进程块
+        process_block* block = container_instance.process_pool_manager->get_block_by_pid(pid);
+
+        if(block)
+        {
+            //让进程退出的exit码
+            block->exit_code = WIFEXITED(stat);
+
+            //另进程退出的信号
+            block->sig_no = WIFSIGNALED(stat);
+
+            if(block->state == RUNNING) {
+                block->state = KILLED;
+                //重新在这个进程索引上spawn一个进程
+                pid = container_instance.process_factory->spawn(block->index);
+                block->pid = pid;
+            } else if(block->state == STOPPED)
+            {
+
+            }
+        }
+
+
+
+
     }
 
 }
@@ -167,7 +188,33 @@ process_pool_manage* process_pool_manage_init(uint32_t block_size)
 
     manage->destroy_pool = process_pool_destroy;
 
+    manage->get_block_by_pid = get_block_by_pid;
+
     return manage;
+}
+
+/**
+ * 根据pid来获取进程块
+ * @param pid
+ * @return
+ */
+process_block* get_block_by_pid(pid_t pid)
+{
+    process_pool* pool = container_instance.process_pool_manager->mem;
+    if(pool->head)
+    {
+        process_block* start = pool->head;
+//        printf("%d\n",start->index);
+        while(start)
+        {
+            if(start->pid == pid)
+            {
+                return start;
+            }
+            start = start->next;
+        }
+    }
+    return NULL;
 }
 
 //申请这一块内存地址

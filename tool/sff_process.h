@@ -12,6 +12,8 @@
 
 #define NO_RUNING 0
 #define RUNNING 1
+#define KILLED 2
+#define STOPPED 3
 
 //内存块结构体
 typedef struct _process_block{
@@ -24,6 +26,12 @@ typedef struct _process_block{
 
     pid_t pid;
 
+    //导致程序退出的linux信号码
+    int sig_no;
+
+    //退出的错误码
+    int exit_code;
+
     //运行状态
     uint16_t state;
 
@@ -34,7 +42,7 @@ typedef struct _process_block{
     char *start_cmd;
 
     //索引号
-    uint16_t index;
+    int index;
 
 }process_block;
 
@@ -70,6 +78,9 @@ typedef struct _process_pool_manage
     //申请一块内存快
     process_block* (*mem_block_alloc)();
 
+    //根据pid来获取进程块
+    process_block* (*get_block_by_pid)(pid_t pid);
+
     //释放一块内存块
     int (*free)();
 
@@ -81,7 +92,7 @@ typedef struct _process_pool_manage
 }process_pool_manage;
 
 
-
+process_block* get_block_by_pid(pid_t pid);
 
 process_pool_manage* process_pool_manage_init(uint32_t block_size);
 
