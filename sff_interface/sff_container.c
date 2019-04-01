@@ -21,6 +21,9 @@ PHP_METHOD (SffContainer, __construct)
 {
     //初始化这一个结构体
     super_container_init();
+
+    //初始化套接字
+    container_instance.socket_lib->create();
 }
 
 //设置容器的配置选项

@@ -20,8 +20,6 @@ CONTAINER_BOOL super_container_init() {
     //初始化容器配置
     container_instance.set_container_config = set_container_config;
 
-
-
     //sff进程容器的地址
     container_instance.process_factory = emalloc(sizeof(sff_worker));
 
@@ -34,16 +32,17 @@ CONTAINER_BOOL super_container_init() {
     //初始化这个结构体
     init_signal_handle();
 
+    //初始化容器的运行函数
     container_instance.run = container_run;
 
     //销毁容器
     container_instance.destroy = destroy_container;
 
+    //初始化socket的库
     container_instance.socket_lib = emalloc(sizeof(sff_socket_lib));
 
     //初始化
     init_socket_lib();
-
 
     return CONTAINER_TRUE;
 }
