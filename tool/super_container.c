@@ -39,6 +39,11 @@ CONTAINER_BOOL super_container_init() {
     //销毁容器
     container_instance.destroy = destroy_container;
 
+    container_instance.socket_lib = emalloc(sizeof(sff_socket_lib));
+
+    //初始化
+    init_socket_lib();
+
 
     return CONTAINER_TRUE;
 }
@@ -222,6 +227,7 @@ CONTAINER_BOOL container_run() {
     return CONTAINER_TRUE;
 }
 
+//销毁容器
 CONTAINER_BOOL destroy_container() {
     efree(container_instance.user);
     efree(container_instance.umask);
@@ -231,6 +237,7 @@ CONTAINER_BOOL destroy_container() {
     efree(container_instance.childlogdir);
     efree(container_instance.process_factory);
     efree(container_instance.signal_factory);
+    efree(container_instance.socket_lib);
     //销毁掉整个连接池
     container_instance.process_pool_manager->destroy_pool();
     return CONTAINER_TRUE;

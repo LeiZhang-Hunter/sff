@@ -21,6 +21,14 @@
 #endif
 
 
+#ifndef	_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifndef _ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+
 //引入php内核异常处理
 #ifndef ZEND_EXCEPTIONS_H
 #include <zend_exceptions.h>
@@ -90,6 +98,11 @@
 #include "tool/sff_process.h"
 #endif
 
+#ifndef SFF_SFF_SOCKET_H
+#include "tool/sff_socket.h"
+#endif
+
+
 #ifndef SFF_SUPER_CONTAINER_H
 #include "tool/super_container.h"
 #endif //SFF_SFF_CONTAINER_H
@@ -100,5 +113,6 @@ extern super_container container_instance;
 #ifndef SFF_SFF_CONTAINER_H
 #include "sff_interface/sff_container.h"
 #endif
+
 
 

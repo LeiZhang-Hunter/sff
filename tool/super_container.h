@@ -83,6 +83,9 @@ typedef struct{
     //销毁容器
     CONTAINER_BOOL (*destroy)();//设置容器的配置
 
+    //socket的链接库
+    sff_socket_lib *socket_lib;
+
 }super_container;
 
 

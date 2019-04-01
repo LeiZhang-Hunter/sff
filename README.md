@@ -78,4 +78,3 @@
     ]);
     $a = $container->run();
     $end = memory_get_usage();
-    echo $end-$start."\n";

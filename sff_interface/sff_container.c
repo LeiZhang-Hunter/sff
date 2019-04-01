@@ -31,7 +31,7 @@ PHP_METHOD (SffContainer, setConfig)
             Z_PARAM_ARRAY(config)
     ZEND_PARSE_PARAMETERS_END();
 
-    //循环传进来的数组,将数组的值放入结构体之中
+    //循环传进来的数组,将数组的值放入结构体之中,并且来检查参数
     zval *config_item;
     zend_string *config_key;
     ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(config), config_key, config_item) {

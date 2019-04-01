@@ -68,6 +68,7 @@ if test "$PHP_SFF" != "no"; then
   tool/super_container.c \
   tool/sff_process.c \
   tool/sff_signal_handle.c \
+  tool/sff_socket.c \
   sff_interface/ssf_application.c \
   sff_interface/factory_controller.c \
   sff_interface/sff_loader.c \

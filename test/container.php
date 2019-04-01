@@ -9,7 +9,7 @@ $container->setConfig([
     "process_pool"=>[
         "swoole_fan"=>[
             "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/swoole_fan.php",
-        ]
+        ],
     ]
 ]);
 $a = $container->run();
