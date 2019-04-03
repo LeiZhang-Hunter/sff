@@ -45,3 +45,10 @@ int sff_create();
 
 //链接套接字
 int sff_connect();
+
+//读取
+ssize_t sff_read(int sock_fd,const void *vptr,size_t n);
+
+//写入
+ssize_t sff_write(int sock_fd,const void *vptr,size_t n);
+

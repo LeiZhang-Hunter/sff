@@ -140,9 +140,14 @@ SFF_BOOL monitor()
                 //重新在这个进程索引上spawn一个进程
                 pid = container_instance.process_factory->spawn(block->index);
                 block->pid = pid;
+
+                //状态继续变为运行
+                if(pid) {
+                    block->state = RUNNING;
+                }
             } else if(block->state == STOPPED)
             {
-
+                //就此停止这个进程
             }
         }
 

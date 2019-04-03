@@ -17,6 +17,8 @@ void init_socket_lib()
     container_instance.socket_lib->create = sff_create;
     container_instance.socket_lib->socket_errno = 0;
     container_instance.socket_lib->connect = sff_connect;
+    container_instance.socket_lib->read = sff_read;
+    container_instance.socket_lib->write = sff_write;
 }
 
 //创建套接字
@@ -113,3 +115,70 @@ int sff_connect()
     fcntl(client_fd,F_SETFL,flags);
     return SFF_TRUE;
 }
+
+//读取
+ssize_t sff_read(int sock_fd,const void *vptr,size_t n)
+{
+    size_t nleft;
+    ssize_t nread;
+    char* ptr;
+    ptr = (char*)vptr;
+    nleft = n;
+
+    //如果说还有未读取的字节数，那么就应该继续读取
+    while(nleft > 0)
+    {
+        if((nread = recv(sock_fd,ptr,nleft,0)) < 0)
+        {
+            //如果说收到信号中断
+            if(errno == EINTR)
+            {
+                nread = 0;
+            }else{
+                return  SFF_FALSE;
+            }
+        }else{
+            //剩余需要读取的数目
+            nleft -= nread;
+
+            //指针偏移，继续向没有读取的位置偏移
+            ptr += nread;
+        }
+    }
+
+    return (n-nleft);
+}
+
+//写入
+ssize_t sff_write(int sock_fd,const void *vptr,size_t n)
+{
+    size_t nleft;
+
+    size_t nwrite;
+
+    char *ptr;
+
+    ptr = (char*)vptr;
+
+    nleft = n;
+
+    while(nleft > 0)
+    {
+        if((nwrite = send(sock_fd,ptr,nleft,0)) < 0)
+        {
+            if(errno == EINTR)
+            {
+                nwrite = 0;
+            }else{
+                return SFF_FALSE;
+            }
+        }else{
+            nleft -= nwrite;
+
+            ptr += nwrite;
+        }
+    }
+
+    return (n-nleft);
+}
+
