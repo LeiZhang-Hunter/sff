@@ -14,15 +14,16 @@ void init_socket_lib()
 {
     //初始化
     bzero(container_instance.socket_lib,sizeof(sff_socket_lib));
-    container_instance.socket_lib->create = sff_create;
+    container_instance.socket_lib->create = sff_socket_create;
     container_instance.socket_lib->socket_errno = 0;
-    container_instance.socket_lib->connect = sff_connect;
-    container_instance.socket_lib->read = sff_read;
-    container_instance.socket_lib->write = sff_write;
+    container_instance.socket_lib->connect = sff_socket_connect;
+    container_instance.socket_lib->read = sff_socket_read;
+    container_instance.socket_lib->write = sff_socket_write;
+    container_instance.socket_lib->loop_work = sff_socket_run;
 }
 
 //创建套接字
-int sff_create()
+int sff_socket_create()
 {
     if(!container_instance.container_ip)
     {
@@ -48,7 +49,7 @@ int sff_create()
 }
 
 //连接
-int sff_connect()
+int sff_socket_connect()
 {
     int flags,n,error;
     fd_set read_set,write_set;
@@ -117,7 +118,7 @@ int sff_connect()
 }
 
 //读取
-ssize_t sff_read(int sock_fd,const void *vptr,size_t n)
+ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n)
 {
     size_t nleft;
     ssize_t nread;
@@ -150,7 +151,7 @@ ssize_t sff_read(int sock_fd,const void *vptr,size_t n)
 }
 
 //写入
-ssize_t sff_write(int sock_fd,const void *vptr,size_t n)
+ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
 {
     size_t nleft;
 
@@ -182,3 +183,7 @@ ssize_t sff_write(int sock_fd,const void *vptr,size_t n)
     return (n-nleft);
 }
 
+int sff_socket_run()
+{
+
+}
