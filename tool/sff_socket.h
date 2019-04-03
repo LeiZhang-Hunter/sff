@@ -7,10 +7,15 @@
 
 #endif
 
+#ifndef	_SYS_EPOLL_H
+#include <sys/epoll.h>
+#endif
+
 #ifndef SFF_SFF_SOCKET_H
 #define SFF_SFF_SOCKET_H
 
 #endif //SFF_SFF_SOCKET_H
+
 
 //socket的库
 typedef struct _sff_socket_lib{

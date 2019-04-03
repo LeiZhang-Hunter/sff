@@ -193,6 +193,13 @@ CONTAINER_BOOL container_run() {
 
     pid_t pid = 0;
 
+    //链接远程服务器
+    if(container_instance.socket_lib->connect() == SFF_FALSE)
+    {
+        php_error_docref(NULL, E_ERROR, "param must be bool");
+        exit(-1);
+    }
+
 
     //循环池子创建进程
     if (pool->head) {
@@ -215,6 +222,14 @@ CONTAINER_BOOL container_run() {
         }
     }
 
+    /**
+     * 由于是一个描述符，所以直接使用select做描述符监控了，这样就不再需要使用epoll了，因为毕竟描述符不多
+     */
+    fd_set read_set;
+
+    fd_set write_set;
+
+    FD_ZERO(&read_set);
 
     while (1) {
         //开始打开监控
