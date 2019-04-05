@@ -77,7 +77,7 @@ int sff_socket_connect()
 
     if(res < 0)
     {
-        if(errno != EWOULDBLOCK)
+        if(errno != EINPROGRESS)
             return SFF_FALSE;
     }
 
@@ -94,7 +94,7 @@ int sff_socket_connect()
 
     //阻塞3秒
     write_set = read_set;
-    tval.tv_sec = 3000;
+    tval.tv_sec = 3;
     tval.tv_usec = 0;
 
     //select 检测描述符
@@ -111,6 +111,13 @@ int sff_socket_connect()
 
         if(getsockopt(client_fd,SOL_SOCKET,SO_ERROR,&error,&len) < 0)
             return  SFF_FALSE;
+    }
+
+    if(error)
+    {
+        close(client_fd);
+        errno = error;
+        return SFF_FALSE;
     }
 
     //还原描述符
@@ -186,5 +193,64 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
 
 int sff_socket_run()
 {
+    /**
+        * 由于是一个描述符，所以直接使用select做描述符监控了，这样就不再需要使用epoll了，因为毕竟描述符不多
+        */
+    fd_set read_set;
 
+    fd_set write_set;
+
+    struct timeval tval;
+
+    socklen_t  len;
+
+    int error;
+
+    int n;
+
+    size_t read_size;
+
+    char read_buf[READBUF];
+
+    SFF_BOOL connect_result;
+
+    FD_ZERO(&read_set);
+
+    tval.tv_sec = 1;
+    tval.tv_usec = 0;
+
+    n = select(container_instance.socket_lib->sockfd+1,&read_set,NULL,NULL,&tval);
+
+    if(n > 0)
+    {
+        //如果说select大于0，那么有一种情况就是套接字可能已经被关闭了，但是服务端并不知道
+        len = sizeof(error);
+
+        //如果说发生了错误
+        if(getsockopt(container_instance.socket_lib->sockfd,SOL_SOCKET,SO_ERROR,&error,&len) < 0)
+        {
+            //这个套接字已经坏掉了,就进行重新的链接一直到成功为止
+            if(errno == EBADF)
+            {
+                close(container_instance.socket_lib->sockfd);
+
+                connect_result = container_instance.socket_lib->connect();
+
+                while(connect_result != SFF_TRUE)
+                {
+                    connect_result = container_instance.socket_lib->connect();
+                    sleep(1000);
+                }
+
+            }else{
+
+                //开始读取数据
+                if((read_size = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,&read_buf,sizeof(read_buf))) > 0)
+                {
+                    //触发可读事件
+                    printf("%s\n",read_buf);
+                }
+            }
+        }
+    }
 }

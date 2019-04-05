@@ -22,8 +22,7 @@ PHP_METHOD (SffContainer, __construct)
     //初始化这一个结构体
     super_container_init();
 
-    //初始化套接字
-    container_instance.socket_lib->create();
+
 }
 
 //设置容器的配置选项
@@ -43,6 +42,24 @@ PHP_METHOD (SffContainer, setConfig)
                 }
                 container_instance.set_container_config(config_key,config_item);
             } ZEND_HASH_FOREACH_END();
+
+}
+
+//收到数据的时候触发的钩子
+PHP_METHOD (SffContainer, receiveHook)
+{
+
+}
+
+//启动进程的时候触发的钩子
+PHP_METHOD (SffContainer, processStartHook)
+{
+
+}
+
+//退出进程的时候触发的钩子
+PHP_METHOD (SffContainer, processStopHook)
+{
 
 }
 

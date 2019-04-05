@@ -16,6 +16,8 @@
 
 #endif //SFF_SFF_SOCKET_H
 
+#define READBUF 65535
+
 
 //socket的库
 typedef struct _sff_socket_lib{

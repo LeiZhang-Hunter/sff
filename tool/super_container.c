@@ -112,7 +112,10 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
             zval
             new_item;
             ZVAL_COPY(&new_item, config_item);
-            SET_CONTAINER_CONFIG_INT(container_instance, container_port, (&new_item));
+            container_instance.container_port = new_item.value.lval;
+            uint16_t port;
+            memcpy(&port,&(new_item.value.lval),sizeof(new_item.value.lval));
+            container_instance.container_port = port;
         } else {
             php_printf("%d\n", Z_TYPE(*config_item));
         }
@@ -181,6 +184,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 //开始运行容器
 CONTAINER_BOOL container_run() {
 
+    php_printf("%d\n",container_instance.container_port);
+
     //获取到内存池地址
     process_pool *pool = container_instance.process_pool_manager->mem;
 
@@ -193,10 +198,14 @@ CONTAINER_BOOL container_run() {
 
     pid_t pid = 0;
 
+    //初始化套接字
+    container_instance.socket_lib->create();
+
     //链接远程服务器
-    if(container_instance.socket_lib->connect() == SFF_FALSE)
+    int res = container_instance.socket_lib->connect();
+    if(res == SFF_FALSE)
     {
-        php_error_docref(NULL, E_ERROR, "param must be bool");
+        php_error_docref(NULL, E_ERROR, "connect server error");
         exit(-1);
     }
 
@@ -222,16 +231,12 @@ CONTAINER_BOOL container_run() {
         }
     }
 
-    /**
-     * 由于是一个描述符，所以直接使用select做描述符监控了，这样就不再需要使用epoll了，因为毕竟描述符不多
-     */
-    fd_set read_set;
 
-    fd_set write_set;
-
-    FD_ZERO(&read_set);
 
     while (1) {
+
+        //开启循环
+        container_instance.socket_lib->loop_work();
         //开始打开监控
         container_instance.process_factory->monitor();
 

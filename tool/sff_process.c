@@ -77,7 +77,6 @@ SFF_BOOL spawn(pid_t process_count)
 
     if((pid = fork()) < 0)
     {
-        php_printf("%d\n",111);
         return SFF_FALSE;
     }else if(pid)
     {

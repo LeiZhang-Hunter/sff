@@ -25,6 +25,15 @@ PHP_METHOD (SffContainer, __construct);
 //设置容器的配置选项
 PHP_METHOD (SffContainer, setConfig);
 
+//注册接收钩子
+PHP_METHOD (SffContainer, receiveHook);
+
+//注册进程启动的钩子
+PHP_METHOD (SffContainer, processStartHook);
+
+//注册进程退出的钩子
+PHP_METHOD (SffContainer, processStopHook);
+
 //运行容器
 PHP_METHOD (SffContainer, run);
 

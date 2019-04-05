@@ -99,7 +99,9 @@ if (Z_TYPE(*item) == IS_STRING){\
 
 #define SET_CONTAINER_CONFIG_INT(handle,key,item) \
 if (Z_TYPE(*item) == IS_INDIRECT){\
-    handle.key = item->value.lval;\
+    zend_long int_value;\
+    memcpy(&int_value,&(item->value.lval),sizeof(int_value));\
+    handle.key = int_value;\
 }
 
 //初始化super_container结构体
