@@ -11,7 +11,7 @@ int ssf_check_zval_function(zval* check_param)
 {
     if(!check_param)
     {
-        return 0;
+        return SFF_FALSE;
     }
     char *func_name = NULL;
     zend_string *key = NULL;
@@ -19,11 +19,11 @@ int ssf_check_zval_function(zval* check_param)
     if (!zend_is_callable_ex(check_param, NULL, 0, &key, func_cache, NULL)){
         efree(func_name);
         zend_string_release(key);
-        return 0;
+        return SFF_FALSE;
     }
     zend_string_release(key);
     efree(func_name);
-    return 1;
+    return SFF_TRUE;
 }
 
 zval* ssf_ce_read_prototype(zend_class_entry *scope, zval *object,const char* pro_name,int strlen)
