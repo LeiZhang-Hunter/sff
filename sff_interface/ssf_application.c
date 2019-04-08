@@ -144,7 +144,7 @@ PHP_METHOD(SimSuperFactory,onRequestBefore)
             Z_PARAM_ZVAL_DEREF(before_hook)
     ZEND_PARSE_PARAMETERS_END();
 
-    if (!ssf_check_zval_function(before_hook)) {
+    if (sff_check_zval_function(before_hook) == SFF_FALSE) {
         php_error_docref(NULL, E_ERROR, "param must be closure function");
         RETURN_FALSE;
     }
@@ -162,7 +162,7 @@ PHP_METHOD(SimSuperFactory,onRequestEnd)
             Z_PARAM_ZVAL_DEREF(end_hook)
     ZEND_PARSE_PARAMETERS_END();
 
-    if (!ssf_check_zval_function(end_hook)) {
+    if (!sff_check_zval_function(end_hook)) {
         php_error_docref(NULL, E_ERROR, "param must be closure function");
         RETURN_FALSE;
     }
@@ -298,15 +298,15 @@ PHP_METHOD (SimSuperFactory, run)
 //
 //
 //
-//    //执行前闭包函数运行
-    before_hook = ssf_ce_read_prototype(ssf_application_entry,getThis(),SFF_REQUEST_BEFORE_HOOK,(int)strlen(SFF_REQUEST_BEFORE_HOOK));
+    //执行前闭包函数运行
+    before_hook = sff_ce_read_prototype(ssf_application_entry,getThis(),SFF_REQUEST_BEFORE_HOOK,(int)strlen(SFF_REQUEST_BEFORE_HOOK));
 //
     if(!before_hook)
     {
         php_error_docref(NULL, E_ERROR, "before hook is error");
     }
 //
-    if(ssf_check_zval_function(before_hook))
+    if(sff_check_zval_function(before_hook))
     {
         args[0] = *getThis();
         call_user_function_ex(EG(function_table), getThis(), before_hook, &null_result_before_hook, 1, args, 0, NULL);
@@ -360,9 +360,9 @@ PHP_METHOD (SimSuperFactory, run)
     call_user_function_ex(EG(function_table),&server_zval, &method_name, &server_fun_result, 1, args, 0,NULL);
 
     //执行后闭包函数运行
-    end_hook = ssf_ce_read_prototype(ssf_application_entry,getThis(),SFF_REQUEST_AFTER_HOOK,(int)strlen(SFF_REQUEST_AFTER_HOOK));
+    end_hook = sff_ce_read_prototype(ssf_application_entry,getThis(),SFF_REQUEST_AFTER_HOOK,(int)strlen(SFF_REQUEST_AFTER_HOOK));
 
-    if(ssf_check_zval_function(end_hook))
+    if(sff_check_zval_function(end_hook))
     {
         args[0] = *getThis();
         call_user_function_ex(EG(function_table), getThis(), end_hook, &null_result_finish_hook, 1, args, 1, NULL);

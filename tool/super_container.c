@@ -117,7 +117,6 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
             memcpy(&port,&(new_item.value.lval),sizeof(new_item.value.lval));
             container_instance.container_port = port;
         } else {
-            php_printf("%d\n", Z_TYPE(*config_item));
         }
     }
 //
@@ -184,7 +183,6 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 //开始运行容器
 CONTAINER_BOOL container_run() {
 
-    php_printf("%d\n",container_instance.container_port);
 
     //获取到内存池地址
     process_pool *pool = container_instance.process_pool_manager->mem;

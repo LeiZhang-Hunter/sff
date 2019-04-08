@@ -86,6 +86,17 @@ typedef struct{
     //socket的链接库
     sff_socket_lib *socket_lib;
 
+    //程序进程启动时候的钩子
+    zval *process_start_hook;
+
+    //程序进程关闭时候的钩子
+    zval *process_stop_hook;
+
+    //程序收到数据的时候的钩子
+    zval *receive_data_hook;
+
+
+
 }super_container;
 
 

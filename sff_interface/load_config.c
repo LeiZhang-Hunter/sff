@@ -63,7 +63,7 @@ PHP_METHOD (Config, regInitBeforeStep) {
             Z_PARAM_ZVAL_DEREF(beforeFunction)
     ZEND_PARSE_PARAMETERS_END();
 
-    if (!ssf_check_zval_function(beforeFunction)) {
+    if (!sff_check_zval_function(beforeFunction)) {
         php_error_docref(NULL, E_ERROR, "param must be closure function");
         RETURN_FALSE;
     }
@@ -80,7 +80,7 @@ PHP_METHOD (Config, regInitAfterStep) {
             Z_PARAM_ZVAL_DEREF(beforeFunction)
     ZEND_PARSE_PARAMETERS_END();
 
-    if (!ssf_check_zval_function(beforeFunction)) {
+    if (!sff_check_zval_function(beforeFunction)) {
         php_error_docref(NULL, E_ERROR, "param must be closure function");
         RETURN_FALSE;
     }
@@ -127,9 +127,9 @@ PHP_METHOD (Config, initConfig) {
     array_init(&config_collect);
     HashTable * config_collect_table = Z_ARRVAL_P(&config_collect);
 
-    before_hook = ssf_ce_read_prototype(config_ce, getThis(), SFF_BEFORE_HOOK, sizeof(SFF_BEFORE_HOOK) - 1);
+    before_hook = sff_ce_read_prototype(config_ce, getThis(), SFF_BEFORE_HOOK, sizeof(SFF_BEFORE_HOOK) - 1);
 
-    if (ssf_check_zval_function(before_hook)) {
+    if (sff_check_zval_function(before_hook)) {
         zval
         args[1];
         zval
@@ -143,9 +143,9 @@ PHP_METHOD (Config, initConfig) {
 
     zend_update_property(config_ce, getThis(), SFF_CONFIG_DATA, sizeof(SFF_CONFIG_DATA) - 1, &config_collect);
 
-    end_hook = ssf_ce_read_prototype(config_ce, getThis(), SFF_FINISH_HOOK, sizeof(SFF_FINISH_HOOK) - 1);
+    end_hook = sff_ce_read_prototype(config_ce, getThis(), SFF_FINISH_HOOK, sizeof(SFF_FINISH_HOOK) - 1);
 
-    if (ssf_check_zval_function(end_hook)) {
+    if (sff_check_zval_function(end_hook)) {
         zval
         args[1];
         zval

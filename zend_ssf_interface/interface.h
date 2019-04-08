@@ -7,7 +7,7 @@
 
 #endif //SFF_INTERFACE_H
 
-zval* ssf_ce_read_prototype(zend_class_entry *scope, zval *object,const char* pro_name,int strlen);
+zval* sff_ce_read_prototype(zend_class_entry *scope, zval *object,const char* pro_name,int strlen);
 
-int ssf_check_zval_function(zval* check_param);
+int sff_check_zval_function(zval* check_param);
 

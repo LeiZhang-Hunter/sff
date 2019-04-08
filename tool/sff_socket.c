@@ -84,7 +84,6 @@ void sff_reconnect()
         sleep(1);
     }
 
-    php_printf("res:%d\n",res);
 }
 
 //连接
@@ -281,26 +280,42 @@ int sff_socket_run()
         //如果说发生了错误
         if((err_res = getsockopt(container_instance.socket_lib->sockfd,SOL_SOCKET,SO_ERROR,&error,&len))> 0)
         {
-
             if(error > 0) {
                 //这个套接字已经坏掉了,就进行重新的链接一直到成功为止
                 if (errno == EBADF) {
                     close(container_instance.socket_lib->sockfd);
-
                     connect_result = container_instance.socket_lib->connect();
-
                     while (connect_result != SFF_TRUE) {
                         connect_result = container_instance.socket_lib->connect();
                     }
-
                 }
             }
         }else if(err_res == 0){
             //开始读取数据
             if((read_size = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,&read_buf,sizeof(read_buf))) > 0)
             {
-                //触发可读事件
-                printf("read:%s\n",read_buf);
+                //触发可读事件闭包函数
+                if(container_instance.receive_data_hook)
+                {
+                    //如果是闭包函数
+                    if(sff_check_zval_function(container_instance.receive_data_hook)) {
+                        //则触发函数并且传入变量
+                        zval
+                        return_result;
+                        //将接收到的数据打包传入
+                        zval
+                        args[1];//自定义参数
+                        zval
+                        receive_data;
+                        zend_string * data_buf = zend_string_init(read_buf, strlen(read_buf), 0);
+                        ZVAL_NEW_STR(&receive_data, data_buf);
+                        zend_string_release(data_buf);
+                        args[0] = receive_data;
+                        call_user_function_ex(EG(function_table), NULL, container_instance.receive_data_hook,
+                                              &return_result, 1, args, 0, NULL);
+                    }
+                }
+
             }
 
         }

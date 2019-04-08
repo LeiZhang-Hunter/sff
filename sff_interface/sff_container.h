@@ -18,6 +18,21 @@ ZEND_BEGIN_ARG_INFO_EX(container_config_struct, 0, 0, 2)
                 ZEND_ARG_INFO(0, config_value)
 ZEND_END_ARG_INFO()
 
+//注册进程启动时候的钩子
+ZEND_BEGIN_ARG_INFO_EX(process_start_hook, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
+//注册收到数据的钩子
+ZEND_BEGIN_ARG_INFO_EX(recieve_data_hook, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
+//注册进程结束的钩子
+ZEND_BEGIN_ARG_INFO_EX(process_stop_hook, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
 
 //Config的构造函数
 PHP_METHOD (SffContainer, __construct);
@@ -39,5 +54,11 @@ PHP_METHOD (SffContainer, run);
 
 
 PHP_METHOD (SffContainer, __destruct);
+
+#define CONTAINER_RECV_HOOK "receive_data_hook"
+
+#define CONTAINER_RROC_START_HOOK "process_stop_hook"
+
+#define CONTAINER_RROC_STOP_HOOK "process_start_hook"
 
 void factory_container_init();

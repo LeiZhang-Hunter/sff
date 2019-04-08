@@ -7,7 +7,10 @@
 #endif
 const zend_function_entry factory_container_struct[] = {
         PHP_ME(SffContainer, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-        PHP_ME(SffContainer, setConfig, NULL,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, setConfig, container_config_struct,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, receiveHook, recieve_data_hook,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, processStartHook, process_start_hook,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, processStopHook, process_stop_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, run, NULL,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
         PHP_FE_END
@@ -48,19 +51,68 @@ PHP_METHOD (SffContainer, setConfig)
 //收到数据的时候触发的钩子
 PHP_METHOD (SffContainer, receiveHook)
 {
+    zval *hook = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(hook)
+    ZEND_PARSE_PARAMETERS_END();
 
+    //查看参数是否是闭包回调
+    if(sff_check_zval_function(hook) == SFF_FALSE)
+    {
+        php_error_docref(NULL, E_WARNING, "receiveHook param must be function");
+    }
+
+    //将闭包处理更新到属性中长期存住
+    zval return_result;
+
+    zend_update_property(factory_controller_entry,getThis(),CONTAINER_RECV_HOOK,strlen(CONTAINER_RECV_HOOK),hook);
+
+    container_instance.receive_data_hook = zend_read_property(factory_controller_entry,getThis(),CONTAINER_RECV_HOOK,strlen(CONTAINER_RECV_HOOK),0,&return_result);
 }
 
 //启动进程的时候触发的钩子
 PHP_METHOD (SffContainer, processStartHook)
 {
+    zval *hook = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(hook)
+    ZEND_PARSE_PARAMETERS_END();
+
+    //查看参数是否是闭包回调
+    if(sff_check_zval_function(hook) == SFF_FALSE)
+    {
+        php_error_docref(NULL, E_WARNING, "processStartHook param must be function");
+    }
+
+    //将闭包处理更新到属性中长期存住
+    zval return_result;
+
+    zend_update_property(factory_controller_entry,getThis(),CONTAINER_RROC_START_HOOK,strlen(CONTAINER_RROC_START_HOOK),hook);
+
+    container_instance.process_start_hook = zend_read_property(factory_controller_entry,getThis(),CONTAINER_RROC_START_HOOK,strlen(CONTAINER_RROC_START_HOOK),0,&return_result);
 
 }
 
 //退出进程的时候触发的钩子
 PHP_METHOD (SffContainer, processStopHook)
 {
+    zval *hook = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(hook)
+    ZEND_PARSE_PARAMETERS_END();
 
+    //查看参数是否是闭包回调
+    if(sff_check_zval_function(hook) == SFF_FALSE)
+    {
+        php_error_docref(NULL, E_WARNING, "processStopHook param must be function");
+    }
+
+    //将闭包处理更新到属性中长期存住
+    zval return_result;
+
+    zend_update_property(factory_controller_entry,getThis(),CONTAINER_RROC_STOP_HOOK,strlen(CONTAINER_RROC_STOP_HOOK),hook);
+
+    container_instance.process_stop_hook = zend_read_property(factory_controller_entry,getThis(),CONTAINER_RROC_STOP_HOOK,strlen(CONTAINER_RROC_STOP_HOOK),0,&return_result);
 }
 
 //运行容器
