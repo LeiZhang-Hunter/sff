@@ -8,7 +8,7 @@ $container->setConfig([
     "container_port"=>9001,
     "process_pool"=>[
         "swoole_fan"=>[
-            "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/swoole_fan.php",
+//            "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/swoole_fan.php",
         ],
     ]
 ]);

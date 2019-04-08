@@ -30,7 +30,16 @@ typedef struct _sff_socket_lib{
     //链接socket
     int (*connect)();
 
+    void (*reconnect)();
+
     int socket_errno;
+
+    //设置描述符是非阻塞的
+    int (*setnoblock)(int fd);
+
+    //设置为阻塞模型
+    int (*setblock)(int fd);
+
     //读
     ssize_t (*read)(int sock_fd,const void *vptr,size_t n);
 
@@ -52,6 +61,15 @@ int sff_socket_create();
 
 //链接套接字
 int sff_socket_connect();
+
+//套接字断线重连
+void sff_reconnect();
+
+//设置是非阻塞的
+int setnoblock(int fd);
+
+//设置为阻塞模型
+int setblock(int fd);
 
 //读取
 ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n);

@@ -21,6 +21,26 @@ void init_socket_lib()
     container_instance.socket_lib->read = sff_socket_read;
     container_instance.socket_lib->write = sff_socket_write;
     container_instance.socket_lib->loop_work = sff_socket_run;
+    container_instance.socket_lib->setnoblock = setnoblock;
+    container_instance.socket_lib->setblock = setblock;
+    container_instance.socket_lib->reconnect = sff_reconnect;
+}
+
+//把描述符设置为非阻塞
+int setnoblock(int fd)
+{
+    int flags;
+    flags = fcntl(fd,F_GETFL);
+    fcntl(fd,F_SETFL,flags|O_NONBLOCK);
+}
+
+//设置为阻塞模式
+int setblock(int fd)
+{
+    int flags;
+    flags = fcntl(fd,F_GETFL);
+    flags &= ~O_NONBLOCK;
+    fcntl(fd,F_SETFL,flags);
 }
 
 //创建套接字
@@ -49,18 +69,35 @@ int sff_socket_create()
     return  SFF_TRUE;
 }
 
+//当断线重连的时候进行重连
+void sff_reconnect()
+{
+    int client_fd = container_instance.socket_lib->sockfd;
+
+    int res;
+
+    while((res = container_instance.socket_lib->connect()) == SFF_FALSE)
+    {
+        close(client_fd);
+        container_instance.socket_lib->create();
+        php_error_docref(NULL, E_WARNING, "connect server error");
+        sleep(1);
+    }
+
+    php_printf("res:%d\n",res);
+}
+
 //连接
 int sff_socket_connect()
 {
-    int flags,n,error;
+    int n,error;
     fd_set read_set,write_set;
     struct timeval tval;
     socklen_t  len;
     int client_fd = container_instance.socket_lib->sockfd;
-    flags = fcntl(client_fd,F_GETFL,0);
 
     //设置套接字编程非阻塞
-    fcntl(client_fd,F_SETFL,flags|O_NONBLOCK);
+    container_instance.socket_lib->setnoblock(client_fd);
 
     error = 0;
 
@@ -84,7 +121,6 @@ int sff_socket_connect()
     if(res == 0)
     {
         //还原描述符
-        fcntl(client_fd,F_SETFL,flags);
         return SFF_TRUE;
     }
 
@@ -121,7 +157,6 @@ int sff_socket_connect()
     }
 
     //还原描述符
-    fcntl(client_fd,F_SETFL,flags);
     return SFF_TRUE;
 }
 
@@ -133,6 +168,7 @@ ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n)
     char* ptr;
     ptr = (char*)vptr;
     nleft = n;
+
 
     //如果说还有未读取的字节数，那么就应该继续读取
     while(nleft > 0)
@@ -146,6 +182,15 @@ ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n)
             }else{
                 return  SFF_FALSE;
             }
+        }else if(nread == 0){
+            //链接失败
+            php_error_docref(NULL, E_WARNING, "connect server error");
+
+            //重新链接
+            container_instance.socket_lib->reconnect();
+            //断开了链接
+            break;
+
         }else{
             //剩余需要读取的数目
             nleft -= nread;
@@ -208,6 +253,8 @@ int sff_socket_run()
 
     int n;
 
+    int err_res;
+
     size_t read_size;
 
     char read_buf[READBUF];
@@ -216,41 +263,49 @@ int sff_socket_run()
 
     FD_ZERO(&read_set);
 
-    tval.tv_sec = 1;
+    FD_SET(container_instance.socket_lib->sockfd,&read_set);
+
+    tval.tv_sec = 4000;
     tval.tv_usec = 0;
 
-    n = select(container_instance.socket_lib->sockfd+1,&read_set,NULL,NULL,&tval);
+
+    n = select(container_instance.socket_lib->sockfd+1,&read_set,&write_set,NULL,&tval);
+
 
     if(n > 0)
     {
         //如果说select大于0，那么有一种情况就是套接字可能已经被关闭了，但是服务端并不知道
         len = sizeof(error);
 
+
         //如果说发生了错误
-        if(getsockopt(container_instance.socket_lib->sockfd,SOL_SOCKET,SO_ERROR,&error,&len) < 0)
+        if((err_res = getsockopt(container_instance.socket_lib->sockfd,SOL_SOCKET,SO_ERROR,&error,&len))> 0)
         {
-            //这个套接字已经坏掉了,就进行重新的链接一直到成功为止
-            if(errno == EBADF)
-            {
-                close(container_instance.socket_lib->sockfd);
 
-                connect_result = container_instance.socket_lib->connect();
+            if(error > 0) {
+                //这个套接字已经坏掉了,就进行重新的链接一直到成功为止
+                if (errno == EBADF) {
+                    close(container_instance.socket_lib->sockfd);
 
-                while(connect_result != SFF_TRUE)
-                {
                     connect_result = container_instance.socket_lib->connect();
-                    sleep(1000);
-                }
 
-            }else{
+                    while (connect_result != SFF_TRUE) {
+                        connect_result = container_instance.socket_lib->connect();
+                    }
 
-                //开始读取数据
-                if((read_size = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,&read_buf,sizeof(read_buf))) > 0)
-                {
-                    //触发可读事件
-                    printf("%s\n",read_buf);
                 }
             }
+        }else if(err_res == 0){
+            //开始读取数据
+            if((read_size = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,&read_buf,sizeof(read_buf))) > 0)
+            {
+                //触发可读事件
+                printf("read:%s\n",read_buf);
+            }
+
         }
     }
+
+    //删除掉描述符的监控下次重新加入
+    FD_CLR(container_instance.socket_lib->sockfd,&read_set);
 }
