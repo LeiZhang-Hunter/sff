@@ -261,6 +261,4 @@ void sff_load_init()
     ZVAL_NULL(&namespace_array);
     //声明默认模块属性
     zend_declare_property_null(sff_loader_entry,SFF_NAMESPANCE,strlen(SFF_NAMESPANCE),ZEND_ACC_STATIC TSRMLS_CC);
-//    zend_declare_property(sff_loader_entry,SFF_NAMESPANCE,strlen(SFF_NAMESPANCE),&namespace_array,ZEND_ACC_STATIC TSRMLS_CC);
-//    zend_declare_property(zend_class_entry *ce, const char *name, size_t name_length, zval *property, int access_type) /* {{{ */
 }

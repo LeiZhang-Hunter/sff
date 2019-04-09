@@ -256,7 +256,9 @@ CONTAINER_BOOL destroy_container() {
     efree(container_instance.signal_factory);
     efree(container_instance.socket_lib);
     //销毁掉整个连接池
-    container_instance.process_pool_manager->destroy_pool();
+    if(container_instance.process_pool_manager) {
+        container_instance.process_pool_manager->destroy_pool();
+    }
     return CONTAINER_TRUE;
 }
 

@@ -144,6 +144,7 @@ PHP_METHOD (SffContainer, run)
 //释放掉内存
 PHP_METHOD (SffContainer, __destruct)
 {
+    php_printf("%s\n","container destroy");
     container_instance.destroy();
 }
 
