@@ -32,3 +32,44 @@ zval* sff_ce_read_prototype(zend_class_entry *scope, zval *object,const char* pr
     zval val;
     return zend_read_property(scope,object,pro_name,strlen,0,&val);
 }
+
+//把进程块结构体转化成数组传入回调函数
+SFF_BOOL convert_process_block_zval_array(process_block *block,zval *process_array)
+{
+    //重组参数将他放入到zval的结构体中
+    zval process_name;//名字
+    zval process_pid;//pid
+    zval process_exit_code;//退出码
+    zval process_sig_no;//中断信号
+    zval process_run_state;//运行状态
+    zval process_index;//进程池索引
+    char process_name_back[MAXPATHLEN];
+    //初始化变量为一个空的数组
+    array_init(process_array);
+    //清理字符串缓冲的buffer防止出现安全问题
+    bzero(process_name_back, sizeof(process_name_back));
+    //复制字符串到缓冲区
+    strcpy(process_name_back,block->process_name);
+    //加入进程名称
+    ZVAL_LONG(&process_pid,block->pid);
+    //退出码
+    ZVAL_LONG(&process_exit_code,block->exit_code);
+    //信号中断码
+    ZVAL_LONG(&process_sig_no,block->sig_no);
+    //当前运行状态
+    ZVAL_LONG(&process_run_state,block->state);
+    //内存池索引
+    ZVAL_LONG(&process_index,block->index);
+    add_assoc_string(process_array,SFF_PROCESS_NAME,process_name_back);
+    //加入进程pid
+    zend_hash_str_add(Z_ARRVAL_P(process_array),SFF_PID,strlen(SFF_PID),&process_pid);
+    //退出码
+    zend_hash_str_add(Z_ARRVAL_P(process_array),SFF_PROC_EXIT_CODE,strlen(SFF_PROC_EXIT_CODE),&process_exit_code);
+    //信号终端码
+    zend_hash_str_add(Z_ARRVAL_P(process_array),SFF_PROC_SIG_NO,strlen(SFF_PROC_SIG_NO),&process_sig_no);
+    //运行状态
+    zend_hash_str_add(Z_ARRVAL_P(process_array),SFF_PROC_RUN_STATE,strlen(SFF_PROC_RUN_STATE),&process_run_state);
+    //进程索引
+    zend_hash_str_add(Z_ARRVAL_P(process_array),SFF_PROC_INDEX,strlen(SFF_PROC_INDEX),&process_index);
+    return SFF_TRUE;
+}

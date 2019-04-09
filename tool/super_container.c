@@ -112,9 +112,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
             zval
             new_item;
             ZVAL_COPY(&new_item, config_item);
-            container_instance.container_port = new_item.value.lval;
-            uint16_t port;
-            memcpy(&port,&(new_item.value.lval),sizeof(new_item.value.lval));
+            convert_to_long(&new_item);
+            uint16_t port = (uint16_t)zval_get_long(&new_item);
             container_instance.container_port = port;
         } else {
         }
@@ -144,7 +143,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                             process_block *slice = process_pool_alloc();
 
                             //初始化进程名字
-                            char *process_name = emalloc(sizeof(ZSTR_VAL(process_config_key)));
+                            char *process_name = emalloc(strlen(ZSTR_VAL(process_config_key)));
+                            bzero(process_name,strlen(ZSTR_VAL(process_config_key)));
                             strcpy(process_name, ZSTR_VAL(process_config_key));
                             slice->process_name = process_name;
 
@@ -156,7 +156,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                 //初始化启动命令
                                 zval * start_cmd_info = zend_hash_str_find(process_info, "start", strlen("start"));
                                 if ((start_cmd_info) && Z_TYPE(*start_cmd_info) == IS_STRING) {
-                                    char *start_cmd_str = emalloc(sizeof(Z_STRVAL(*start_cmd_info)));
+                                    char *start_cmd_str = emalloc(strlen(Z_STRVAL(*start_cmd_info)));
+                                    bzero(start_cmd_str,sizeof(Z_STRVAL(*start_cmd_info)));
                                     strcpy(start_cmd_str, Z_STRVAL(*start_cmd_info));
                                     slice->start_cmd = start_cmd_str;
                                 }
@@ -183,26 +184,20 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 //开始运行容器
 CONTAINER_BOOL container_run() {
 
-
     //获取到内存池地址
     process_pool *pool = container_instance.process_pool_manager->mem;
 
     int process_count = 0;
 
-    pid_t pid_wait;
-
-    //waitpid返回的结果
-    pid_t ret_pid;
-
     pid_t pid = 0;
+
 
     //初始化套接字
     container_instance.socket_lib->create();
 
     //链接远程服务器
     int res = container_instance.socket_lib->connect();
-    if(res == SFF_FALSE)
-    {
+    if (res == SFF_FALSE) {
         php_error_docref(NULL, E_ERROR, "connect server error");
         exit(-1);
     }
@@ -213,22 +208,22 @@ CONTAINER_BOOL container_run() {
         process_block *start = pool->head;
         while (start) {
 
-
-
             //堆池子进行循环然后开始生产
             pid = container_instance.process_factory->spawn(process_count);
             start->index = process_count;
             start->pid = pid;
             start->state = RUNNING;
 
+            //如果说start有数据则触发回调函数
+            container_instance.process_factory->start_hook(start);
 
+            //进程启动后的回调函数
             start = start->next;
 
             //计数器循环+1
             process_count = process_count + 1;
         }
     }
-
 
 
     while (1) {

@@ -15,6 +15,24 @@
 #define KILLED 2
 #define STOPPED 3
 
+//进程名字
+#define SFF_PROCESS_NAME "process_name"
+
+//进程pid
+#define SFF_PID "pid"
+
+//linux 信号
+#define SFF_PROC_SIG_NO "sig_no"
+
+//退出的错误码
+#define SFF_PROC_EXIT_CODE "exit_code"
+
+//运行状态
+#define SFF_PROC_RUN_STATE "run_state"
+
+//进程池索引
+#define SFF_PROC_INDEX "index"
+
 //内存块结构体
 typedef struct _process_block{
 
@@ -119,8 +137,10 @@ typedef struct _sff_worker{
     //最小的进程数目
     int minfds;
 
-    //进程池
+    //进程启动的钩子
+    void (*start_hook)(process_block* process_info);
 
+    void (*stop_hook)(process_block* process_info);
 }sff_worker;
 
 //初始化进程
@@ -134,5 +154,11 @@ SFF_BOOL start_daemon();
  * @return
  */
 SFF_BOOL spawn(pid_t process_count);
+
+//进程启动后的钩子
+void process_start_call_hook(process_block* process_info);
+
+//进程停止后的钩子
+void process_stop_call_hook(process_block* process_info);
 
 SFF_BOOL monitor();
