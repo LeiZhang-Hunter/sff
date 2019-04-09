@@ -33,6 +33,12 @@
 //进程池索引
 #define SFF_PROC_INDEX "index"
 
+//启动指令
+#define SFF_PROC_START_CMD "start_cmd"
+
+//退出指令
+#define SFF_PROC_STOP_CMD "stop_cmd"
+
 //内存块结构体
 typedef struct _process_block{
 

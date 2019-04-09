@@ -160,6 +160,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                     bzero(start_cmd_str,sizeof(Z_STRVAL(*start_cmd_info)));
                                     strcpy(start_cmd_str, Z_STRVAL(*start_cmd_info));
                                     slice->start_cmd = start_cmd_str;
+                                }else{
+                                    php_error_docref(NULL, E_ERROR, "start command must not be null");
                                 }
 
                                 //初始化停止命令
@@ -168,6 +170,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                     char *stop_cmd_str = emalloc(sizeof(Z_STRVAL(*stop_cmd_info)));
                                     strcpy(stop_cmd_str, Z_STRVAL(*stop_cmd_info));
                                     slice->stop_cmd = stop_cmd_str;
+                                }else{
+                                    php_error_docref(NULL, E_ERROR, "stop command must not be null");
                                 }
 
                                 //将进程的运行状态设置为0未运行
@@ -175,6 +179,9 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                             }
 
                         }ZEND_HASH_FOREACH_END();
+            }else{
+                //必须要加入进程到容器
+                php_error_docref(NULL, E_ERROR, "please add process to container");
             }
         }
 

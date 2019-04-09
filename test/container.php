@@ -18,12 +18,14 @@ $container->setConfig([
     "process_pool"=>[
         "swoole_fan"=>[
             "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/swoole_fan.php",
+            "stop"=>""
         ],
     ]
 ]);
 
 $container->processStartHook(['A','test']);
 $container->processStopHook(['A','test']);
+$container->receiveHook(['A','test']);
 $a = $container->run(true);
 $end = memory_get_usage();
 //echo $end-$start."\n";

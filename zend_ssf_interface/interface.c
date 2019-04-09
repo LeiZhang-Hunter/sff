@@ -44,12 +44,18 @@ SFF_BOOL convert_process_block_zval_array(process_block *block,zval *process_arr
     zval process_run_state;//运行状态
     zval process_index;//进程池索引
     char process_name_back[MAXPATHLEN];
+    char process_start_cmd[MAXPATHLEN];
+    char process_stop_cmd[MAXPATHLEN];
     //初始化变量为一个空的数组
     array_init(process_array);
     //清理字符串缓冲的buffer防止出现安全问题
     bzero(process_name_back, sizeof(process_name_back));
+    bzero(process_start_cmd, sizeof(process_start_cmd));
+    bzero(process_stop_cmd, sizeof(process_stop_cmd));
     //复制字符串到缓冲区
     strcpy(process_name_back,block->process_name);
+    strcpy(process_start_cmd,block->start_cmd);
+    strcpy(process_stop_cmd,block->stop_cmd);
     //加入进程名称
     ZVAL_LONG(&process_pid,block->pid);
     //退出码
@@ -61,6 +67,8 @@ SFF_BOOL convert_process_block_zval_array(process_block *block,zval *process_arr
     //内存池索引
     ZVAL_LONG(&process_index,block->index);
     add_assoc_string(process_array,SFF_PROCESS_NAME,process_name_back);
+    add_assoc_string(process_array,SFF_PROC_START_CMD,process_start_cmd);
+    add_assoc_string(process_array,SFF_PROC_STOP_CMD,process_stop_cmd);
     //加入进程pid
     zend_hash_str_add(Z_ARRVAL_P(process_array),SFF_PID,strlen(SFF_PID),&process_pid);
     //退出码
