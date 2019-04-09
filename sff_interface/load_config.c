@@ -94,7 +94,7 @@ PHP_METHOD (Config, initConfig) {
     zval * config_path = NULL;//folder dir
     ZEND_PARSE_PARAMETERS_START(0, 1)
             Z_PARAM_OPTIONAL
-            Z_PARAM_ZVAL_DEREF(config_path)
+            Z_PARAM_ZVAL(config_path)
     ZEND_PARSE_PARAMETERS_END();
 
 
@@ -104,24 +104,30 @@ PHP_METHOD (Config, initConfig) {
     zval * before_hook;//前置钩子
     zval * end_hook;//后置钩子
 
+    //初始化字符串buffer
+    bzero(config_dir,sizeof(config_dir));
+
     if (!config_path) {
         //get file folder
         char path[MAXPATHLEN];
         get_file_execute_dir(path);
         if(SFF_G(main_folder)) {
-            php_sprintf(config_dir, "%s/%s/config", path,SFF_G(main_folder));
+            php_sprintf(config_dir, "%s/%s/", path,SFF_G(main_folder));
         }else{
-            php_sprintf(config_dir, "%s/config",  path);
+            php_sprintf(config_dir, "%s/",  path);
         }
         if (!opendir(config_dir)) {
             php_error_docref(NULL, E_ERROR, "Config Dir Is Not Exist");
             RETURN_FALSE;
         }
     } else {
-        if (Z_TYPE(config_path) != IS_STRING) {
+        if (Z_TYPE(*config_path) != IS_STRING) {
             php_error_docref(NULL, E_ERROR, "param must be string");
             RETURN_FALSE;
         }
+
+        //写入
+        strcpy(config_dir,Z_STRVAL(*config_path));
     }
 
     array_init(&config_collect);
@@ -129,14 +135,18 @@ PHP_METHOD (Config, initConfig) {
 
     before_hook = sff_ce_read_prototype(config_ce, getThis(), SFF_BEFORE_HOOK, sizeof(SFF_BEFORE_HOOK) - 1);
 
-    if (sff_check_zval_function(before_hook)) {
-        zval
-        args[1];
-        zval
-        null_result_before_hook;
-        args[0] = *getThis();
-        call_user_function_ex(EG(function_table), getThis(), before_hook, &null_result_before_hook, 1, args, 0, NULL);
+    if(Z_TYPE(*before_hook) != IS_NULL) {
+        if (sff_check_zval_function(before_hook)) {
+            zval
+            args[1];
+            zval
+            null_result_before_hook;
+            args[0] = *getThis();
+            call_user_function_ex(EG(function_table), getThis(), before_hook, &null_result_before_hook, 1, args, 0,
+                                  NULL);
+        }
     }
+
 
     get_file_data_to_hash_table(config_collect_table, config_dir);
 
@@ -145,13 +155,15 @@ PHP_METHOD (Config, initConfig) {
 
     end_hook = sff_ce_read_prototype(config_ce, getThis(), SFF_FINISH_HOOK, sizeof(SFF_FINISH_HOOK) - 1);
 
-    if (sff_check_zval_function(end_hook)) {
-        zval
-        args[1];
-        zval
-        null_result_finish_hook;
-        args[0] = *getThis();
-        call_user_function_ex(EG(function_table), getThis(), end_hook, &null_result_finish_hook, 1, args, 0, NULL);
+    if(Z_TYPE(*end_hook) != IS_NULL) {
+        if (sff_check_zval_function(end_hook)) {
+            zval
+            args[1];
+            zval
+            null_result_finish_hook;
+            args[0] = *getThis();
+            call_user_function_ex(EG(function_table), getThis(), end_hook, &null_result_finish_hook, 1, args, 0, NULL);
+        }
     }
 
     RETURN_TRUE
