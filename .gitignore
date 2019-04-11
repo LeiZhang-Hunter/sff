@@ -25,3 +25,4 @@ config.guess
 mkinstalldirs
 CMakeLists.txt
 .libs
+core
