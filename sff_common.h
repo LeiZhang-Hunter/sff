@@ -102,6 +102,10 @@
 #include "tool/sff_socket.h"
 #endif
 
+#ifndef SFF_SUPER_CONTAINER_H
+#include "tool/log_file.h"
+#endif //SFF_SFF_CONTAINER_H
+
 
 #ifndef SFF_SUPER_CONTAINER_H
 #include "tool/super_container.h"

@@ -33,7 +33,7 @@ CONTAINER_BOOL super_container_init() {
     init_signal_handle();
 
     //初始化容器的运行函数
-    container_instance.run = container_run;
+    container_instance.run   = container_run;
 
     //销毁容器
     container_instance.destroy = destroy_container;
@@ -43,6 +43,13 @@ CONTAINER_BOOL super_container_init() {
 
     //初始化
     init_socket_lib();
+
+    container_instance.log_lib = emalloc(sizeof(sff_log));
+
+    init_log_lib();
+
+    //获取进程pid
+    container_instance.container_pid = getpid();
 
     return CONTAINER_TRUE;
 }
@@ -78,7 +85,17 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
     }
 
     if (strcmp(CONTAINER_CONFIG_PIDFILE, ZSTR_VAL(config_key)) == 0) {
-        SET_CONTAINER_CONFIG_STR(container_instance, pidfile, config_item);
+        //将pid写入文件当中
+        if(Z_TYPE(*config_item) == IS_STRING) {
+            SET_CONTAINER_CONFIG_STR(container_instance, pidfile, config_item);
+            char filepid[sizeof(container_instance.container_pid)+1];
+            sprintf(filepid, "%d", container_instance.container_pid);
+            if(container_instance.pidfile) {
+                container_instance.log_lib->write_log(container_instance.pidfile, filepid, sizeof(filepid));
+            }
+        }else{
+            php_error_docref(NULL, E_ERROR, "pid file must be string");
+        }
     }
 
     if (strcmp(CONTAINER_CONFIG_CHILDLOGDIR, ZSTR_VAL(config_key)) == 0) {
@@ -98,6 +115,16 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
             container_instance.daemon = 1;
         } else {
             container_instance.daemon = 0;
+        }
+    }
+
+    //查看是否需要进行远程链接如果不需要则不进行
+    if (strcmp(CONTAINER_CONNECT_SERVER, ZSTR_VAL(config_key)) == 0) {
+        if(Z_TYPE(*config_item) == IS_TRUE)
+        {
+            container_instance.connect_server = 1;
+        }else{
+            container_instance.connect_server = 0;
         }
     }
 
@@ -198,15 +225,17 @@ CONTAINER_BOOL container_run() {
 
     pid_t pid = 0;
 
+    if(container_instance.connect_server == SFF_TRUE) {
 
-    //初始化套接字
-    container_instance.socket_lib->create();
+        //初始化套接字
+        container_instance.socket_lib->create();
 
-    //链接远程服务器
-    int res = container_instance.socket_lib->connect();
-    if (res == SFF_FALSE) {
-        php_error_docref(NULL, E_ERROR, "connect server error");
-        exit(-1);
+        //链接远程服务器
+        int res = container_instance.socket_lib->connect();
+        if (res == SFF_FALSE) {
+            php_error_docref(NULL, E_ERROR, "connect server error");
+            exit(-1);
+        }
     }
 
 
@@ -235,8 +264,10 @@ CONTAINER_BOOL container_run() {
 
     while (1) {
 
-        //开启循环
-        container_instance.socket_lib->loop_work();
+        if(container_instance.connect_server == SFF_TRUE) {
+            //开启循环
+            container_instance.socket_lib->loop_work();
+        }
         //开始打开监控
         container_instance.process_factory->monitor();
 

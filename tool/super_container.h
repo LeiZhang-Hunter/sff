@@ -39,6 +39,7 @@ PHP_INI_END()
 #define CONTAINER_CONFIG_MINFDS "minfds"
 #define CONTAINER_CONFIG_MINPROCS   "minprocs"
 #define CONTAINER_CONFIG_DAEMON   "daemon"
+#define CONTAINER_CONNECT_SERVER   "connect_server"
 #define CONTAINER_IP   "container_ip"
 #define CONTAINER_PORT "container_port"
 #define CONTAINER_PROCESS_POOL "process_pool"
@@ -50,7 +51,7 @@ typedef struct{
     char *logfile;
     size_t logfile_maxbytes;
     int logfile_backups;
-    char* pidfile;
+    char *pidfile;
     char* childlogdir;
     int minfds;
     int minprocs;
@@ -63,6 +64,8 @@ typedef struct{
 
     //监听的ip地址
     char *container_ip;
+
+    uint8_t connect_server;
 
     //监听的端口
     uint16_t container_port;
@@ -95,7 +98,9 @@ typedef struct{
     //程序收到数据的时候的钩子
     zval *receive_data_hook;
 
+    sff_log *log_lib;
 
+    pid_t container_pid;
 
 }super_container;
 
