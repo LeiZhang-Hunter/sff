@@ -16,9 +16,9 @@ void init_log_lib(){
     container_instance.log_lib->write_log = sff_write;
 }
 
-int sff_write(char* pathname,char *content,size_t file_size)
+int sff_write(char* pathname,char *content,size_t file_size,const char* mode)
 {
-    FILE* handel = fopen(container_instance.pidfile,"a+");
+    FILE* handel = fopen(container_instance.pidfile,mode);
 
     if(!handel)
     {

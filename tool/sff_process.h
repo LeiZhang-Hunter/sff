@@ -111,7 +111,7 @@ typedef struct _process_pool_manage
     //销毁整个内存池
     int (*destroy_pool)();
 
-
+    int (*send_message)(int signo);
 
 }process_pool_manage;
 
@@ -168,3 +168,6 @@ void process_start_call_hook(process_block* process_info);
 void process_stop_call_hook(process_block* process_info);
 
 SFF_BOOL monitor();
+
+//堆内存池中所有的进程发送信号
+int send_message_pool(int signo);

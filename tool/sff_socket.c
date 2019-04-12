@@ -222,6 +222,8 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
             if(errno == EINTR)
             {
                 nwrite = 0;
+            }else if(errno == EWOULDBLOCK){
+                nwrite = 0;
             }else{
                 return SFF_FALSE;
             }

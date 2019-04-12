@@ -196,6 +196,8 @@ process_pool_manage *process_pool_manage_init(uint32_t block_size) {
 
     manage->get_block_by_pid = get_block_by_pid;
 
+    manage->send_message = send_message_pool;
+
     return manage;
 }
 
@@ -299,6 +301,28 @@ void process_pool_debug(process_pool_manage *manage) {
         process_block *start = pool->head;
 //        printf("%d\n",start->index);
         while (start) {
+            start = start->next;
+        }
+    }
+}
+
+//给进程池里的所有进程发送信号
+int send_message_pool(int signo)
+{
+//依次清除掉所有的命令
+    process_pool *pool = container_instance.process_pool_manager->mem;
+    if (pool->head) {
+        process_block *start = pool->head;
+        while (start) {
+            if(kill(start->pid,signo) < 0)
+            {
+                if(signo == SIGTERM) {
+                    //将进程的状态位置设置为关闭防止再次被拉起来
+                    start->state = STOPPED;
+                }
+                //标记发送失败
+                php_error_docref(NULL, E_WARNING, "send signo failed,message:%s",strerror(errno));
+            }
             start = start->next;
         }
     }

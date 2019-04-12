@@ -115,6 +115,51 @@ PHP_METHOD (SffContainer, processStopHook)
     container_instance.process_stop_hook = zend_read_property(factory_controller_entry,getThis(),CONTAINER_RROC_STOP_HOOK,strlen(CONTAINER_RROC_STOP_HOOK),0,&return_result);
 }
 
+//执行数据上报
+PHP_METHOD (SffContainer,report)
+{
+    zval *send_data = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(send_data)
+    ZEND_PARSE_PARAMETERS_END();
+
+    //开启容器上报必须要打开远程链接
+    if(container_instance.connect_server != SFF_TRUE)
+    {
+        php_error_docref(NULL, E_ERROR, "report data must open server connect");
+    }
+
+    //检查是否是字符串
+    if(Z_TYPE(*send_data) != IS_STRING)
+    {
+        php_error_docref(NULL, E_ERROR, "report data must be string");
+    }
+
+    //做数据发送处理
+    ssize_t res = container_instance.socket_lib->write(container_instance.socket_lib->sockfd,Z_STRVAL(*send_data),strlen(Z_STRVAL(*send_data)));
+    if(res == SFF_FALSE)
+    {
+        RETURN_FALSE
+    }else{
+        RETURN_TRUE
+    }
+}
+
+void killprocess(int signo)
+{
+    if(signo == SIGTERM)
+    {
+        //如果说内存池中有数据,循环给内存池中的进程发送终止信号
+        if(container_instance.process_pool_manager->mem)
+        {
+            container_instance.process_pool_manager->send_message(SIGTERM);
+        }
+
+        //最后关闭的是自己
+        kill(container_instance.container_pid,SIGKILL);
+    }
+}
+
 //运行容器
 PHP_METHOD (SffContainer, run)
 {
@@ -124,7 +169,8 @@ PHP_METHOD (SffContainer, run)
 
     container_instance.signal_factory->add_signal_handle(SIGHUP,SIG_IGN);
 
-    container_instance.signal_factory->add_signal_handle(SIGTERM,SIG_IGN);
+    //收到了sigterm信号,那么需要给所有进程发信号，然后再停止自己
+    container_instance.signal_factory->add_signal_handle(SIGTERM,killprocess);
 
     container_instance.signal_factory->add_signal_handle(SIGUSR1,SIG_IGN);
 

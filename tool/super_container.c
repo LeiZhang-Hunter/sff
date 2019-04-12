@@ -62,6 +62,17 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
     //加载php配置中的配置
     if (strcmp(CONTAINER_CONFIG_USER, ZSTR_VAL(config_key)) == 0) {
         SET_CONTAINER_CONFIG_STR(container_instance, user, config_item);
+
+        //获取用户信息
+        struct passwd* userinfo = getpwnam(container_instance.user);
+        if(!userinfo)
+        {
+            php_error_docref(NULL, E_ERROR, "container user(%s) is not exist",container_instance.user);
+        }
+
+        //设置用户的uid
+        setgid(userinfo->pw_gid);
+        setuid(userinfo->pw_uid);
     }
 
     if (strcmp(CONTAINER_CONFIG_UMASK, ZSTR_VAL(config_key)) == 0) {
@@ -91,7 +102,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
             char filepid[sizeof(container_instance.container_pid)+1];
             sprintf(filepid, "%d", container_instance.container_pid);
             if(container_instance.pidfile) {
-                container_instance.log_lib->write_log(container_instance.pidfile, filepid, sizeof(filepid));
+                container_instance.log_lib->write_log(container_instance.pidfile, filepid, sizeof(filepid),"w");
             }
         }else{
             php_error_docref(NULL, E_ERROR, "pid file must be string");

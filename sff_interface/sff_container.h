@@ -49,6 +49,9 @@ PHP_METHOD (SffContainer, processStartHook);
 //注册进程退出的钩子
 PHP_METHOD (SffContainer, processStopHook);
 
+//容器上报
+PHP_METHOD (SffContainer,report);
+
 //运行容器
 PHP_METHOD (SffContainer, run);
 

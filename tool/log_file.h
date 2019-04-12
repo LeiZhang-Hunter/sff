@@ -16,13 +16,13 @@
 typedef struct _sff_log{
 
     //写入日志
-    int (*write_log)(char* pathname,char *content,size_t file_size);
+    int (*write_log)(char* pathname,char *content,size_t file_size,char *mode);
 
 }sff_log;
 
 //初始化日志库
 void init_log_lib();
 
-int sff_write(char* pathname,char *content,size_t file_size);
+int sff_write(char* pathname,char *content,size_t file_size,const char *mode);
 
 
