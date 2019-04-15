@@ -102,7 +102,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
             char filepid[sizeof(container_instance.container_pid)+1];
             sprintf(filepid, "%d", container_instance.container_pid);
             if(container_instance.pidfile) {
-                container_instance.log_lib->write_log(container_instance.pidfile, filepid, sizeof(filepid),"w");
+                container_instance.log_lib->write_log(container_instance.pidfile, filepid, strlen(filepid),"w");
             }
         }else{
             php_error_docref(NULL, E_ERROR, "pid file must be string");
@@ -194,7 +194,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                 //初始化启动命令
                                 zval * start_cmd_info = zend_hash_str_find(process_info, "start", strlen("start"));
                                 if ((start_cmd_info) && Z_TYPE(*start_cmd_info) == IS_STRING) {
-                                    char *start_cmd_str = emalloc(strlen(Z_STRVAL(*start_cmd_info)));
+                                    char *start_cmd_str = emalloc(strlen(Z_STRVAL(*start_cmd_info))+1);
                                     bzero(start_cmd_str,sizeof(Z_STRVAL(*start_cmd_info)));
                                     strcpy(start_cmd_str, Z_STRVAL(*start_cmd_info));
                                     slice->start_cmd = start_cmd_str;

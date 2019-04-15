@@ -65,6 +65,10 @@ typedef struct{
     //监听的ip地址
     char *container_ip;
 
+    uint8_t state;//运行状态
+
+    zval* object;
+
     uint8_t connect_server;
 
     //监听的端口
@@ -88,6 +92,11 @@ typedef struct{
 
     //socket的链接库
     sff_socket_lib *socket_lib;
+
+    //socket连接成功的钩子
+    zval *connect_hook;
+
+    zval *close_hook;
 
     //程序进程启动时候的钩子
     zval *process_start_hook;

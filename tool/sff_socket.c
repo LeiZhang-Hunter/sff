@@ -23,6 +23,7 @@ void init_socket_lib()
     container_instance.socket_lib->loop_work = sff_socket_run;
     container_instance.socket_lib->setnoblock = setnoblock;
     container_instance.socket_lib->setblock = setblock;
+    container_instance.socket_lib->close = sff_close;
     container_instance.socket_lib->reconnect = sff_reconnect;
 }
 
@@ -66,6 +67,7 @@ int sff_socket_create()
     }
 
     container_instance.socket_lib->sockfd = sockfd;
+
     return  SFF_TRUE;
 }
 
@@ -78,12 +80,45 @@ void sff_reconnect()
 
     while((res = container_instance.socket_lib->connect()) == SFF_FALSE)
     {
-        close(client_fd);
+        container_instance.socket_lib->close(client_fd);
         container_instance.socket_lib->create();
         php_error_docref(NULL, E_WARNING, "connect server error");
         sleep(1);
     }
 
+}
+
+void call_hook(zval* hook)
+{
+//触发可读事件闭包函数
+    if(hook && container_instance.object)
+    {
+        //如果是闭包函数
+        if(sff_check_zval_function(hook)) {
+            //则触发函数并且传入变量
+            zval
+            return_result;
+            //将接收到的数据打包传入
+            zval
+            args[1];//自定义参数
+            zval
+            receive_data;
+            args[0] = *container_instance.object;
+            call_user_function_ex(EG(function_table), NULL, hook,
+                                  &return_result, 1, args, 0, NULL);
+        }
+    }
+}
+
+//关闭
+int sff_close(int fd)
+{
+    if(close(fd) == 0) {
+        call_hook(container_instance.close_hook);
+    }else{
+        return SFF_FALSE;
+    }
+    return SFF_TRUE;
 }
 
 //连接
@@ -120,6 +155,7 @@ int sff_socket_connect()
     if(res == 0)
     {
         //还原描述符
+        call_hook(container_instance.connect_hook);
         return SFF_TRUE;
     }
 
@@ -150,12 +186,13 @@ int sff_socket_connect()
 
     if(error)
     {
-        close(client_fd);
+        container_instance.socket_lib->close(client_fd);
         errno = error;
         return SFF_FALSE;
     }
 
     //还原描述符
+    call_hook(container_instance.connect_hook);
     return SFF_TRUE;
 }
 
@@ -224,6 +261,9 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
                 nwrite = 0;
             }else if(errno == EWOULDBLOCK){
                 nwrite = 0;
+            }else if(errno == EBADF){
+                //执行重新链接
+                container_instance.socket_lib->reconnect();
             }else{
                 return SFF_FALSE;
             }
@@ -285,7 +325,7 @@ int sff_socket_run()
             if(error > 0) {
                 //这个套接字已经坏掉了,就进行重新的链接一直到成功为止
                 if (errno == EBADF) {
-                    close(container_instance.socket_lib->sockfd);
+                    container_instance.socket_lib->close(container_instance.socket_lib->sockfd);
                     connect_result = container_instance.socket_lib->connect();
                     while (connect_result != SFF_TRUE) {
                         connect_result = container_instance.socket_lib->connect();

@@ -23,6 +23,16 @@ ZEND_BEGIN_ARG_INFO_EX(process_start_hook, 0, 0, 1)
                 ZEND_ARG_INFO(0, config_value)
 ZEND_END_ARG_INFO()
 
+//注册connect的钩子
+ZEND_BEGIN_ARG_INFO_EX(container_connect_hook, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
+//注册关闭的钩子
+ZEND_BEGIN_ARG_INFO_EX(container_close_hook, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
 //注册收到数据的钩子
 ZEND_BEGIN_ARG_INFO_EX(recieve_data_hook, 0, 0, 1)
                 ZEND_ARG_INFO(0, config_value)
@@ -39,6 +49,12 @@ PHP_METHOD (SffContainer, __construct);
 
 //设置容器的配置选项
 PHP_METHOD (SffContainer, setConfig);
+
+//链接到云端的钩子
+PHP_METHOD (SffContainer, socketConnectHook);
+
+//关闭套接字的钩子
+PHP_METHOD (SffContainer, socketCloseHook);
 
 //注册接收钩子
 PHP_METHOD (SffContainer, receiveHook);
@@ -57,6 +73,10 @@ PHP_METHOD (SffContainer, run);
 
 
 PHP_METHOD (SffContainer, __destruct);
+
+#define CONTAINER_CONNECT_HOOK "container_connect_hook"
+
+#define CONTAINER_CLOSE_HOOK "container_close_hook"
 
 #define CONTAINER_RECV_HOOK "receive_data_hook"
 

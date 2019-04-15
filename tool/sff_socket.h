@@ -49,6 +49,8 @@ typedef struct _sff_socket_lib{
     //读取一行
     ssize_t (*readline)(int sock_fd,const void *vptr,size_t maxline);
 
+    int (*close)(int fd);
+
     //循环工作
     int (*loop_work)();
 }sff_socket_lib;
@@ -71,6 +73,11 @@ int setnoblock(int fd);
 //设置为阻塞模型
 int setblock(int fd);
 
+//链接成功时候触发钩子
+void call_hook();
+
+//关闭
+int sff_close(int fd);
 //读取
 ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n);
 

@@ -8,6 +8,8 @@
 const zend_function_entry factory_container_struct[] = {
         PHP_ME(SffContainer, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
         PHP_ME(SffContainer, setConfig, container_config_struct,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, socketConnectHook, container_connect_hook,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, socketCloseHook, container_close_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, receiveHook, recieve_data_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, processStartHook, process_start_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, processStopHook, process_stop_hook,  ZEND_ACC_PUBLIC)
@@ -69,6 +71,51 @@ PHP_METHOD (SffContainer, receiveHook)
 
     container_instance.receive_data_hook = zend_read_property(factory_controller_entry,getThis(),CONTAINER_RECV_HOOK,strlen(CONTAINER_RECV_HOOK),0,&return_result);
 }
+
+//链接上服务器的时候触发
+PHP_METHOD (SffContainer, socketConnectHook)
+{
+    zval *hook = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(hook)
+    ZEND_PARSE_PARAMETERS_END();
+
+    //查看参数是否是闭包回调
+    if(sff_check_zval_function(hook) == SFF_FALSE)
+    {
+        php_error_docref(NULL, E_WARNING, "receiveHook param must be function");
+    }
+
+    //将闭包处理更新到属性中长期存住
+    zval return_result;
+
+    zend_update_property(factory_controller_entry,getThis(),CONTAINER_CONNECT_HOOK,strlen(CONTAINER_CONNECT_HOOK),hook);
+
+    container_instance.connect_hook = zend_read_property(factory_controller_entry,getThis(),CONTAINER_CONNECT_HOOK,strlen(CONTAINER_CONNECT_HOOK),0,&return_result);
+}
+
+//关闭套接字的时候触发
+PHP_METHOD (SffContainer, socketCloseHook)
+{
+    zval *hook = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(hook)
+    ZEND_PARSE_PARAMETERS_END();
+
+    //查看参数是否是闭包回调
+    if(sff_check_zval_function(hook) == SFF_FALSE)
+    {
+        php_error_docref(NULL, E_WARNING, "receiveHook param must be function");
+    }
+
+    //将闭包处理更新到属性中长期存住
+    zval return_result;
+
+    zend_update_property(factory_controller_entry,getThis(),CONTAINER_CLOSE_HOOK,strlen(CONTAINER_CLOSE_HOOK),hook);
+
+    container_instance.close_hook = zend_read_property(factory_controller_entry,getThis(),CONTAINER_CLOSE_HOOK,strlen(CONTAINER_CLOSE_HOOK),0,&return_result);
+}
+
 
 //启动进程的时候触发的钩子
 PHP_METHOD (SffContainer, processStartHook)
@@ -154,6 +201,9 @@ void killprocess(int signo)
         {
             container_instance.process_pool_manager->send_message(SIGTERM);
         }
+
+        //清理掉server_pid;
+        container_instance.log_lib->write_log(container_instance.pidfile, "0", strlen("0"),"w");
 
         //最后关闭的是自己
         kill(container_instance.container_pid,SIGKILL);

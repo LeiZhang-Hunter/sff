@@ -11,19 +11,33 @@ $in = new A();
 $start = memory_get_usage();
 $container = new SffContainer();
 $container->setConfig([
-    "user"=>"root",
-    "daemon"=>false,
-    "connect_server"=>false,
-    "container_ip"=>"127.0.0.1",
-    "container_port"=>9001,
-    "pidfile"=>"/home/zhanglei/ourc/php-7.3.2/ext/sff/test/server.pid",
-    "process_pool"=>[
-        "swoole_fan"=>[
-            "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/swoole_fan.php",
-            "stop"=>""
-        ],
-    ]
-]);
+                          "user"=>"root",
+                          "daemon"=>false,
+                          "container_ip"=>"127.0.0.1",
+                          "container_port"=>9001,
+                          "process_pool"=>[
+                              "swoole_fan"=>[
+                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/swoole_fan.php",
+                                  "stop"=>""
+                              ],
+                              "auto"=>[
+                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/auto.php",
+                                  "stop"=>""
+                              ],
+                              "client"=>[
+                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/client.php",
+                                  "stop"=>""
+                              ],
+                              "indoor"=>[
+                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/indoor.php",
+                                  "stop"=>""
+                              ]
+                          ],
+                          "split"=>"\r\n\r\n",
+                          "pidfile"=>"/home/zhanglei/data/www/pureliving/new_client/Pid/server.pid",
+                          "encrypt_key"=>"111111111111",
+                          "max_buffer_len"=>"6144"
+                      ]);
 
 $container->processStartHook(['A','test']);
 $container->processStopHook(['A','test']);
