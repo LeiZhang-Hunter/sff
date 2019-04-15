@@ -65,7 +65,6 @@ typedef struct{
     //监听的ip地址
     char *container_ip;
 
-    uint8_t state;//运行状态
 
     zval* object;
 

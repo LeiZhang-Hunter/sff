@@ -12,6 +12,12 @@ super_container container_instance;
 
 CONTAINER_BOOL super_container_init() {
 
+    if(container_instance.init_state == 1)
+    {
+        php_error_docref(NULL, E_ERROR, "Container has been loading");
+        return CONTAINER_FALSE;
+    }
+
     //初始化这个结构体
     bzero(&container_instance, sizeof(super_container));
 
