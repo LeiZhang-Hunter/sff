@@ -105,11 +105,6 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
         //将pid写入文件当中
         if(Z_TYPE(*config_item) == IS_STRING) {
             SET_CONTAINER_CONFIG_STR(container_instance, pidfile, config_item);
-            char filepid[sizeof(container_instance.container_pid)+1];
-            sprintf(filepid, "%d", container_instance.container_pid);
-            if(container_instance.pidfile) {
-                container_instance.log_lib->write_log(container_instance.pidfile, filepid, strlen(filepid),"w");
-            }
         }else{
             php_error_docref(NULL, E_ERROR, "pid file must be string");
         }
@@ -279,6 +274,8 @@ CONTAINER_BOOL container_run() {
     }
 
 
+
+
     while (1) {
 
         if(container_instance.connect_server == SFF_TRUE) {
@@ -289,6 +286,8 @@ CONTAINER_BOOL container_run() {
         container_instance.process_factory->monitor();
 
     }
+
+
     return CONTAINER_TRUE;
 }
 

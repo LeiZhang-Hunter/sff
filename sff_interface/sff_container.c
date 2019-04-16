@@ -230,6 +230,15 @@ PHP_METHOD (SffContainer, run)
     if(container_instance.daemon == SFF_TRUE)
     {
         container_instance.process_factory->start_daemon();
+
+        container_instance.container_pid = getpid();
+    }
+
+    //运行完成后记录pid
+    char filepid[sizeof(container_instance.container_pid)+1];
+    sprintf(filepid, "%d", container_instance.container_pid);
+    if(container_instance.pidfile) {
+        container_instance.log_lib->write_log(container_instance.pidfile, filepid, strlen(filepid),"w");
     }
 
     //运行监控
