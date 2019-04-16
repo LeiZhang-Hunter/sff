@@ -92,3 +92,9 @@
     $a = $container->run(true);
     $end = memory_get_usage();
     //echo $end-$start."\n";
+
+
+
+##bug问题
+
+    守护进程后无法接收到停止信号
