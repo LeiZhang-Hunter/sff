@@ -17,22 +17,23 @@ $container->setConfig([
                           "container_port"=>9001,
                           "process_pool"=>[
                               "swoole_fan"=>[
-                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/swoole_fan.php",
-                                  "stop"=>""
-                              ],
-                              "auto"=>[
-                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/auto.php",
-                                  "stop"=>""
-                              ],
-                              "client"=>[
-                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/client.php",
-                                  "stop"=>""
-                              ],
-                              "indoor"=>[
-                                  "start"=>"php /home/zhanglei/data/www/pureliving/swoole_fan/indoor.php",
-                                  "stop"=>""
-                              ]
-                          ],
+                                                    "swoole_fan"=>[
+                                                        "start"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/swoole_fan.php start",
+                                                        "stop"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/swoole_fan.php stop"
+                                                    ],
+                                                    "auto"=>[
+                                                        "start"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/auto.php start",
+                                                        "stop"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/auto.php stop"
+                                                    ],
+                                                    "client"=>[
+                                                        "start"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/client.php start",
+                                                        "stop"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/client.php stop"
+                                                    ],
+                                                    "indoor"=>[
+                                                        "start"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/indoor.php start",
+                                                        "stop"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/indoor.php stop",
+                                                    ]
+                                                ],
                           "split"=>"\r\n\r\n",
                           "pidfile"=>"/home/zhanglei/data/www/pureliving/new_client/Pid/server.pid",
                           "encrypt_key"=>"111111111111",

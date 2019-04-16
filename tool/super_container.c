@@ -211,7 +211,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                 //初始化停止命令
                                 zval * stop_cmd_info = zend_hash_str_find(process_info, "stop", strlen("stop"));
                                 if ((stop_cmd_info) && Z_TYPE(*stop_cmd_info) == IS_STRING) {
-                                    char *stop_cmd_str = emalloc(sizeof(Z_STRVAL(*stop_cmd_info)));
+                                    char *stop_cmd_str = emalloc(strlen(Z_STRVAL(*stop_cmd_info)) + 1);
                                     strcpy(stop_cmd_str, Z_STRVAL(*stop_cmd_info));
                                     slice->stop_cmd = stop_cmd_str;
                                 }else{
