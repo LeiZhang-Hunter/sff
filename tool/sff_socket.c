@@ -306,7 +306,7 @@ int sff_socket_run()
 
     FD_SET(container_instance.socket_lib->sockfd,&read_set);
 
-    tval.tv_sec = 4000;
+    tval.tv_sec = 1;
     tval.tv_usec = 0;
 
 
