@@ -260,12 +260,17 @@ CONTAINER_BOOL container_run() {
 
             //堆池子进行循环然后开始生产
             pid = container_instance.process_factory->spawn(process_count);
+
             start->index = process_count;
             start->pid = pid;
             start->state = RUNNING;
 
             //如果说start有数据则触发回调函数
-            container_instance.process_factory->start_hook(start);
+            if(pid > 0) {
+                container_instance.process_factory->start_hook(start);
+            }else{
+                container_instance.process_factory->stop_hook(start);//进程停止的钩子
+            }
 
             //进程启动后的回调函数
             start = start->next;
