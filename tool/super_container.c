@@ -250,6 +250,8 @@ CONTAINER_BOOL container_run() {
         }
     }
 
+//    container_instance.socket_lib->write(container_instance.socket_lib->sockfd,"hahahah",strlen("hahahah"));
+
 
     //循环池子创建进程
     if (pool->head) {

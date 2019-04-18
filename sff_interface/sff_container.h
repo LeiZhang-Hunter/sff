@@ -43,6 +43,11 @@ ZEND_BEGIN_ARG_INFO_EX(process_stop_hook, 0, 0, 1)
                 ZEND_ARG_INFO(0, config_value)
 ZEND_END_ARG_INFO()
 
+//要发送的数据
+ZEND_BEGIN_ARG_INFO_EX(send_data, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
 
 //Config的构造函数
 PHP_METHOD (SffContainer, __construct);

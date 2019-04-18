@@ -13,6 +13,7 @@ const zend_function_entry factory_container_struct[] = {
         PHP_ME(SffContainer, receiveHook, recieve_data_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, processStartHook, process_start_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, processStopHook, process_stop_hook,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, report, send_data,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, run, NULL,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
         PHP_FE_END
@@ -171,16 +172,20 @@ PHP_METHOD (SffContainer,report)
     ZEND_PARSE_PARAMETERS_END();
 
     //开启容器上报必须要打开远程链接
+//    php_printf("connect server:%d\n",container_instance.connect_server);
     if(container_instance.connect_server != SFF_TRUE)
     {
-        php_error_docref(NULL, E_ERROR, "report data must open server connect");
+        php_error_docref(NULL, E_WARNING, "report data must open server connect");
+        RETURN_FALSE
     }
 
     //检查是否是字符串
     if(Z_TYPE(*send_data) != IS_STRING)
     {
-        php_error_docref(NULL, E_ERROR, "report data must be string");
+        php_error_docref(NULL, E_WARNING, "report data must be string");
+        RETURN_FALSE
     }
+    php_printf("data:%s\n",Z_STRVAL(*send_data));
 
     //做数据发送处理
     ssize_t res = container_instance.socket_lib->write(container_instance.socket_lib->sockfd,Z_STRVAL(*send_data),strlen(Z_STRVAL(*send_data)));
