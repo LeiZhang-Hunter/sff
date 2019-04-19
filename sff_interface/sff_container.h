@@ -48,6 +48,16 @@ ZEND_BEGIN_ARG_INFO_EX(send_data, 0, 0, 1)
                 ZEND_ARG_INFO(0, config_value)
 ZEND_END_ARG_INFO()
 
+//停止程序传入的停止索引
+ZEND_BEGIN_ARG_INFO_EX(stop_index, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
+//启动程序的启动索引
+ZEND_BEGIN_ARG_INFO_EX(start_index, 0, 0, 1)
+                ZEND_ARG_INFO(0, config_value)
+ZEND_END_ARG_INFO()
+
 
 //Config的构造函数
 PHP_METHOD (SffContainer, __construct);
@@ -72,6 +82,12 @@ PHP_METHOD (SffContainer, processStopHook);
 
 //容器上报
 PHP_METHOD (SffContainer,report);
+
+//停止进程
+PHP_METHOD (SffContainer, stop);
+
+//再一次启动进程
+PHP_METHOD (SffContainer, start);
 
 //运行容器
 PHP_METHOD (SffContainer, run);

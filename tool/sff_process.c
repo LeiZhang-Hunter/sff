@@ -18,6 +18,7 @@ SFF_BOOL sff_worker_init() {
     container_instance.process_factory->spawn = spawn;
     container_instance.process_factory->start_hook = process_start_call_hook;
     container_instance.process_factory->stop_hook = process_stop_call_hook;
+    container_instance.process_factory->exec = process_exec;
     return SFF_TRUE;
 }
 
@@ -69,25 +70,54 @@ SFF_BOOL start_daemon() {
 SFF_BOOL spawn(pid_t process_count) {
     pid_t pid;
     char *arg;
-
+    //偏移指针，找到对应的程序块
+    process_block *block = container_instance.process_pool_manager->mem->head + process_count;
     //动态传递参数
     char *argv[0];
 
     if ((pid = fork()) < 0) {
         return SFF_FALSE;
     } else if (pid) {
+        block->state = RUNNING;
+        //重置信息
+        block->pid = pid;
+        block->sig_no = 0;
+        block->exit_code = 0;
+        //触发启动的回调函数
+        container_instance.process_factory->start_hook(block);
         return pid;
     }
-    //偏移指针，找到对应的程序块
-    process_block *block = container_instance.process_pool_manager->mem->head + process_count;
+
     block->state = RUNNING;
 
-    char str[strlen(block->start_cmd) + 1];
+    int res = container_instance.process_factory->exec(block->start_cmd);
+    if(res == -1)
+    {
+        php_error_docref(NULL, E_WARNING, "%s start failed",block->process_name);
+    }
+    //程序运行正常结束
+    exit(0);
 
-    strcpy(str, block->start_cmd);
+    return CONTAINER_TRUE;
+}
+
+SFF_BOOL process_exec(char* command)
+{
+    if(command == NULL)
+    {
+        return SFF_FALSE;
+    }
+    char str[strlen(command) + 1];
+
+    strcpy(str, command);
 
     //解析参数地址
     char *exec_script = strtok(str, " ");
+
+    //动态传递参数
+    char *argv[0];
+
+    char *arg;
 
     //计算总数
     int count = 0;
@@ -99,10 +129,8 @@ SFF_BOOL spawn(pid_t process_count) {
     argv[count + 1] = NULL;
 
     int res = execvp(exec_script, argv);
-    //程序运行正常结束
-    exit(0);
 
-    return CONTAINER_TRUE;
+    return res;
 }
 
 //执行程序监控
@@ -149,16 +177,6 @@ SFF_BOOL monitor() {
                 //重新拉起这个进程
                 pid = container_instance.process_factory->spawn(block->index);
 
-                //状态继续变为运行
-                if (pid) {
-                    block->state = RUNNING;
-                    //重置信息
-                    block->pid = pid;
-                    block->sig_no = 0;
-                    block->exit_code = 0;
-                    //触发启动的回调函数
-                    container_instance.process_factory->start_hook(block);
-                }
             } else if (block->state == STOPPED) {
                 //就此停止这个进程,不做任何重启处理直接回收即可
                 container_instance.process_factory->stop_hook(block);

@@ -148,7 +148,12 @@ typedef struct _sff_worker{
     //进程启动的钩子
     void (*start_hook)(process_block* process_info);
 
+    //停止的钩子
     void (*stop_hook)(process_block* process_info);
+
+    //exec执行程序
+    SFF_BOOL (*exec)(char *command);
+
 }sff_worker;
 
 //初始化进程
@@ -173,3 +178,6 @@ SFF_BOOL monitor();
 
 //堆内存池中所有的进程发送信号
 int send_message_pool(int signo);
+
+//执行命令
+SFF_BOOL process_exec(char* command);

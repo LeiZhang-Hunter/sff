@@ -12,6 +12,8 @@ const zend_function_entry factory_container_struct[] = {
         PHP_ME(SffContainer, socketCloseHook, container_close_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, receiveHook, recieve_data_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, processStartHook, process_start_hook,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, start, start_index,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer, stop, stop_index,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, processStopHook, process_stop_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, report, send_data,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, run, NULL,  ZEND_ACC_PUBLIC)
@@ -213,6 +215,71 @@ void killprocess(int signo)
         //最后关闭的是自己
         kill(container_instance.container_pid,SIGKILL);
     }
+}
+
+//停止程序
+PHP_METHOD (SffContainer, stop)
+{
+    zval *stop_index = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(stop_index)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if(Z_TYPE(*stop_index) != IS_LONG)
+    {
+        php_error_docref(NULL, E_WARNING, "stop index must be int");
+        RETURN_FALSE
+    }
+
+    int index = stop_index->value.lval;
+    process_block* block = container_instance.process_pool_manager->mem->head + index;
+    if(!block)
+    {
+        RETURN_FALSE
+    }
+
+    block->state = STOPPED;
+
+    //停止程序
+    int res = container_instance.process_factory->exec(block->stop_cmd);
+    if(res == 0)
+    {
+        RETURN_TRUE
+    }else{
+        RETURN_FALSE
+    }
+}
+
+//启动程序
+PHP_METHOD (SffContainer, start)
+{
+    zval *start_index = NULL;//this opetion begin single model
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+            Z_PARAM_ZVAL(start_index)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if(Z_TYPE(*stop_index) != IS_LONG)
+    {
+        php_error_docref(NULL, E_WARNING, "stop index must be int");
+        RETURN_FALSE
+    }
+
+    int index = start_index->value.lval;
+    process_block* block = container_instance.process_pool_manager->mem->head + index;
+    if(!block)
+    {
+        RETURN_FALSE
+    }
+
+    //如果进程正在运行之中为了防止程序重复运行必须要杀死原程序
+    block->state = STOPPED;
+    int res = container_instance.process_factory->exec(block->stop_cmd);
+
+    //重新拉起进程
+    container_instance.process_factory->spawn(index);
+
+    //停止程序
+    RETURN_TRUE
 }
 
 //运行容器

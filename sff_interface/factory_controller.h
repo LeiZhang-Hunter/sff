@@ -14,13 +14,13 @@ zend_class_entry *factory_controller_entry;
 
 
 //定义工厂控制器的构造函数
-PHP_METHOD (FactoryController, __construct);
+PHP_METHOD (SffFactoryController, __construct);
 
 //获取类的实例
-PHP_METHOD(FactoryController,getFactoryInstance);
+PHP_METHOD(SffFactoryController,getFactoryInstance);
 
 //工厂的析构函数
-PHP_METHOD (FactoryController, __destruct);
+PHP_METHOD (SffFactoryController, __destruct);
 
 
 //定义主类的实例
