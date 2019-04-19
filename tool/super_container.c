@@ -192,6 +192,18 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 
                                 HashTable * process_info = Z_ARRVAL_P(process_config_item);
 
+                                //发现pid_file的配置文件注意必须要依赖与pid_file否则进程可能会失控
+                                zval * process_pid_file = zend_hash_str_find(process_info, "pid_file", strlen("pid_file"));
+                                if ((process_pid_file) && Z_TYPE(*process_pid_file) == IS_STRING) {
+                                    char *process_pid_file_str = emalloc(strlen(Z_STRVAL(*process_pid_file))+1);
+                                    bzero(process_pid_file_str,sizeof(Z_STRVAL(*process_pid_file)));
+                                    strcpy(process_pid_file_str, Z_STRVAL(*process_pid_file));
+                                    slice->pid_file = process_pid_file_str;
+                                }else{
+                                    php_error_docref(NULL, E_ERROR, "%s pid file must not be null",slice->process_name);
+                                }
+
+
                                 //初始化启动命令
                                 zval * start_cmd_info = zend_hash_str_find(process_info, "start", strlen("start"));
                                 if ((start_cmd_info) && Z_TYPE(*start_cmd_info) == IS_STRING) {
@@ -200,7 +212,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                     strcpy(start_cmd_str, Z_STRVAL(*start_cmd_info));
                                     slice->start_cmd = start_cmd_str;
                                 }else{
-                                    php_error_docref(NULL, E_ERROR, "start command must not be null");
+                                    php_error_docref(NULL, E_ERROR, "%s start command must not be null",slice->process_name);
                                 }
 
                                 //初始化停止命令
@@ -210,7 +222,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                     strcpy(stop_cmd_str, Z_STRVAL(*stop_cmd_info));
                                     slice->stop_cmd = stop_cmd_str;
                                 }else{
-                                    php_error_docref(NULL, E_ERROR, "stop command must not be null");
+                                    php_error_docref(NULL, E_ERROR, "%s stop command must not be null",slice->process_name);
                                 }
 
                                 //将进程的运行状态设置为0未运行

@@ -21,6 +21,7 @@ $container->setConfig([
                           "container_port"=>8723,
                           "process_pool"=>[
                                                     "swoole_fan"=>[
+                                                        "pid_file"=>"/home/zhanglei/data/www/pureliving/new_client/Pid/swoole_fan.pid",
                                                         "start"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/swoole_fan.php start",
                                                         "stop"=>"php /home/zhanglei/data/www/pureliving/new_client/Factory/Process/swoole_fan.php stop"
                                                     ]],

@@ -118,10 +118,14 @@ SFF_BOOL monitor() {
 
     if (pid > 0) {
 
+
         //从进程池里获取到对应的进程块
         process_block *block = container_instance.process_pool_manager->get_block_by_pid(pid);
 
         if (block) {
+
+            //如果说进程已经停止了要删除进程的pid文件这样才能重启脚本否则造成脚本无法重启
+
             //让进程退出的exit码
             block->exit_code = WIFEXITED(stat);
 
@@ -136,6 +140,11 @@ SFF_BOOL monitor() {
 
                 //触发停止的钩子
                 container_instance.process_factory->stop_hook(block);
+
+                //删除对应的pid文件防止启动不起来
+                if(block->pid_file) {
+                    unlink(block->pid_file);
+                }
 
                 //重新拉起这个进程
                 pid = container_instance.process_factory->spawn(block->index);
