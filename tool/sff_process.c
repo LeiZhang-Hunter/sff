@@ -138,10 +138,8 @@ SFF_BOOL monitor() {
     pid_t pid;
     int stat;
 
-    php_printf("kill pid:%d\n",000);
     pid = waitpid(-1, &stat, WNOHANG);
 
-    php_printf("kill pid:%d\n",pid);
 
 
     if (pid > 0) {

@@ -31,9 +31,7 @@ $container->setConfig([
                           "max_buffer_len"=>"6144"
                       ]);
 
-$container->processStartHook(['A','test']);
-$container->processStopHook(['A','test']);
-$container->receiveHook(['A','test']);
+$container->socketConnectHook(['A','test']);
 $a = $container->run(true);
 $end = memory_get_usage();
 //echo $end-$start."\n";

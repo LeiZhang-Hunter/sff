@@ -30,6 +30,7 @@ PHP_METHOD (SffContainer, __construct)
     //初始化这一个结构体
     super_container_init();
 
+    container_instance.object = getThis();
 
 }
 

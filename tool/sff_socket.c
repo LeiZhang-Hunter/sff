@@ -191,7 +191,7 @@ int sff_socket_connect()
         return SFF_FALSE;
     }
 
-    //还原描述符
+    //触发成功的钩子
     call_hook(container_instance.connect_hook);
     return SFF_TRUE;
 }
