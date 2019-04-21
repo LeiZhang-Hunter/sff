@@ -188,7 +188,6 @@ PHP_METHOD (SffContainer,report)
         php_error_docref(NULL, E_WARNING, "report data must be string");
         RETURN_FALSE
     }
-    php_printf("data:%s\n",Z_STRVAL(*send_data));
 
     //做数据发送处理
     ssize_t res = container_instance.socket_lib->write(container_instance.socket_lib->sockfd,Z_STRVAL(*send_data),strlen(Z_STRVAL(*send_data)));
@@ -233,6 +232,7 @@ PHP_METHOD (SffContainer, stop)
     }
 
     int index = stop_index->value.lval;
+    php_printf("index:%d\n",index);
     process_block* block = container_instance.process_pool_manager->mem->head + index;
     if(!block)
     {
@@ -242,7 +242,7 @@ PHP_METHOD (SffContainer, stop)
     block->state = STOPPED;
 
     //停止程序
-    int res = container_instance.process_factory->exec(block->stop_cmd);
+    int res = kill(block->pid,SIGTERM);
     if(res == 0)
     {
         RETURN_TRUE
@@ -259,9 +259,9 @@ PHP_METHOD (SffContainer, start)
             Z_PARAM_ZVAL(start_index)
     ZEND_PARSE_PARAMETERS_END();
 
-    if(Z_TYPE(*stop_index) != IS_LONG)
+    if(Z_TYPE(*start_index) != IS_LONG)
     {
-        php_error_docref(NULL, E_WARNING, "stop index must be int");
+        php_error_docref(NULL, E_WARNING, "start index must be int");
         RETURN_FALSE
     }
 
@@ -273,8 +273,14 @@ PHP_METHOD (SffContainer, start)
     }
 
     //如果进程正在运行之中为了防止程序重复运行必须要杀死原程序
-    block->state = STOPPED;
-    int res = container_instance.process_factory->exec(block->stop_cmd);
+    if(block->state == RUNNING)
+    {
+        php_error_docref(NULL, E_WARNING, "process has been run,please stop the process");
+        RETURN_FALSE
+    }else{
+        block->state = RUNNING;
+    }
+
 
     //重新拉起进程
     container_instance.process_factory->spawn(index);
