@@ -19,5 +19,7 @@ void get_file_data_to_hash_table(HashTable *ht, char *file_path);
 
 //获取文件名字
 const char* get_file_name(char* file_name);
+
 SFF_BOOL is_dir(char *path);
+SFF_BOOL is_file(char *path);
 

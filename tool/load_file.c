@@ -115,12 +115,22 @@ void get_file_data_to_hash_table(HashTable *ht, char *file_path) {
 
     config_handle = opendir(file_path);
 
+
+    /**
+     * 由于readdir在不通操作系统上有兼容行问题当出现兼容性问题我们使用is_dir做判断，不是文件夹就是文件
+     */
+
     //如果说可以打开
     while((unit_file_stream_struct = readdir(config_handle)))
     {
 
+        bzero(&recursion_dir,sizeof(recursion_dir));
+
+        //再次进行拼接路径
+        sprintf(recursion_dir,"%s/%s",file_path_cpy,unit_file_stream_struct->d_name);
+
         //如果是一个目录
-        if(unit_file_stream_struct->d_type == DT_DIR)
+            if(unit_file_stream_struct->d_type == DT_DIR || is_dir(recursion_dir) == SFF_TRUE)
         {
 
             //不能是 . 或者是 ../
@@ -139,17 +149,14 @@ void get_file_data_to_hash_table(HashTable *ht, char *file_path) {
 
             zend_string_release(dir_key);
 
-            bzero(&recursion_dir,sizeof(recursion_dir));
 
-            //再次进行拼接路径
-            sprintf(recursion_dir,"%s/%s",file_path_cpy,unit_file_stream_struct->d_name);
 
             //再次递归
 
             get_file_data_to_hash_table(Z_ARRVAL_P(&dir_array),recursion_dir);
 
         //如果是一个文件
-        }else if(unit_file_stream_struct->d_type == DT_REG)
+        }else if(unit_file_stream_struct->d_type == DT_REG || is_file(recursion_dir) == SFF_TRUE)
         {
             bzero(&compile_file_name,sizeof(compile_file_name));
             sprintf(compile_file_name,"%s/%s",file_path,unit_file_stream_struct->d_name);
@@ -199,6 +206,18 @@ SFF_BOOL is_dir(char *path)
 {
     DIR *result = opendir(path);
     if(result == NULL)
+    {
+        return SFF_FALSE;
+    }else {
+        return SFF_TRUE;
+    }
+}
+
+//检查文件是否存在
+SFF_BOOL is_file(char *path)
+{
+    int result = access(path,F_OK);
+    if(result != 0)
     {
         return SFF_FALSE;
     }else {
