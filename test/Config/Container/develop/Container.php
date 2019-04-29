@@ -30,9 +30,13 @@ return [
         ],
     ],
     "split"=>"\r\n\r\n",
-    "pidfile"=>"/home/zhanglei/data/www/pureliving/new_client/Pid/server.pid",
+    "pidfile"=>BASE_DIR."/Pid/server.pid",
     "encrypt_key"=>"111111111111",
     "max_buffer_len"=>"6144",
     "enterprise_uuid"=>"0A2360D174B6EAAD10BE997215A82ED4",
-    "password"=>"0A2360D174B6EAAD10BE997215A82ED4"
+    "password"=>"0A2360D174B6EAAD10BE997215A82ED4",
+    //容器需要设置的socket接收buf
+    "container_recv_buff"=>"",
+    //容器需要设置的socket发送buf
+    "container_send_buff"=>"",
 ];

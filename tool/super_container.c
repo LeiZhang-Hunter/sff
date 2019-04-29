@@ -147,15 +147,12 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 
     //加入容器的端口
     if (strcmp(CONTAINER_PORT, ZSTR_VAL(config_key)) == 0) {
-        if (Z_TYPE(*config_item) == IS_LONG) {
-            zval
-            new_item;
-            ZVAL_COPY(&new_item, config_item);
-            convert_to_long(&new_item);
-            uint16_t port = (uint16_t)zval_get_long(&new_item);
-            container_instance.container_port = port;
-        } else {
-        }
+        zval
+        new_item;
+        ZVAL_COPY(&new_item, config_item);
+        convert_to_long(&new_item);
+        uint16_t port = (uint16_t)zval_get_long(&new_item);
+        container_instance.container_port = port;
     }
 //
     //加入需要生产的进程
