@@ -154,7 +154,25 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
         uint16_t port = (uint16_t)zval_get_long(&new_item);
         container_instance.container_port = port;
     }
-//
+
+    //设置socket的接收缓冲区大小
+    if (strcmp(CONTAINER_RECV_BUF_SIZE, ZSTR_VAL(config_key)) == 0) {
+        zval zval_recv_buf;
+        ZVAL_COPY(&zval_recv_buf, config_item);
+        convert_to_long(&zval_recv_buf);
+        int recv_buf = (int)zval_get_long(&zval_recv_buf);
+        container_instance.recv_buf = recv_buf;
+    }
+
+    //设置socket发送缓冲区的大小
+    if (strcmp(CONTAINER_SEND_BUF_SIZE, ZSTR_VAL(config_key)) == 0) {
+        zval zval_send_buf;
+        ZVAL_COPY(&zval_send_buf, config_item);
+        convert_to_long(&zval_send_buf);
+        int send_buf = (uint16_t)zval_get_long(&zval_send_buf);
+        container_instance.send_buf = send_buf;
+    }
+
     //加入需要生产的进程
     if (strcmp(CONTAINER_PROCESS_POOL, ZSTR_VAL(config_key)) == 0) {
 

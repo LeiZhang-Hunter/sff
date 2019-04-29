@@ -6,7 +6,6 @@
 
 
 #include "../sff_common.h"
-
 #endif
 
 
@@ -67,6 +66,22 @@ int sff_socket_create()
     }
 
     container_instance.socket_lib->sockfd = sockfd;
+
+    if(container_instance.recv_buf > 0)
+    {
+        if(setsockopt(sockfd,SOL_SOCKET,SO_RCVBUF,&container_instance.recv_buf,sizeof(int)) < 0)
+        {
+            php_error_docref(NULL, E_WARNING, "set recv buffer error");
+        }
+    }
+
+    if(container_instance.send_buf > 0)
+    {
+        if(setsockopt(sockfd,SOL_SOCKET,SO_SNDBUF,&container_instance.send_buf,sizeof(int)) < 0)
+        {
+            php_error_docref(NULL, E_WARNING, "set send buffer error");
+        }
+    }
 
     return  SFF_TRUE;
 }
@@ -366,3 +381,4 @@ int sff_socket_run()
     //删除掉描述符的监控下次重新加入
     FD_CLR(container_instance.socket_lib->sockfd,&read_set);
 }
+

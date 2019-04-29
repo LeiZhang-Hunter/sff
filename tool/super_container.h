@@ -43,6 +43,8 @@ PHP_INI_END()
 #define CONTAINER_IP   "container_ip"
 #define CONTAINER_PORT "container_port"
 #define CONTAINER_PROCESS_POOL "process_pool"
+#define CONTAINER_RECV_BUF_SIZE "container_recv_buff"
+#define CONTAINER_SEND_BUF_SIZE "container_send_buff"
 //定义一个结构体
 typedef struct{
     char *user;//container的运行用户
@@ -109,6 +111,10 @@ typedef struct{
     sff_log *log_lib;
 
     pid_t container_pid;
+
+    int recv_buf;
+
+    int send_buf;
 
 }super_container;
 
