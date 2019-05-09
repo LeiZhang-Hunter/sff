@@ -19,6 +19,9 @@ PHP_METHOD (SffFactoryController, __construct);
 //获取类的实例
 PHP_METHOD(SffFactoryController,getFactoryInstance);
 
+//创建共享内存
+PHP_METHOD(SffFactoryController,createMem);
+
 //工厂的析构函数
 PHP_METHOD (SffFactoryController, __destruct);
 

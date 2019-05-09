@@ -49,7 +49,6 @@ class ContainerTcpHandle{
     }
 
     //收到数据的钩子
-    public function receiveHook($data)
     {
         var_dump($data);
         $config = ManageContainer::$instance->configInstance->getConfig();

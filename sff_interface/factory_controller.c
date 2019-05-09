@@ -7,10 +7,13 @@
 
 #endif
 
+#include <sys/mman.h>
+
 
 const zend_function_entry factory_application_struct[] = {
         PHP_ME(SffFactoryController, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
         PHP_ME(SffFactoryController, getFactoryInstance, NULL,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffFactoryController, createMem, NULL,  ZEND_ACC_PUBLIC)
         PHP_ME(SffFactoryController, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
         PHP_FE_END
 };
@@ -24,6 +27,12 @@ PHP_METHOD(SffFactoryController,getFactoryInstance)
 {
 
 }
+
+PHP_METHOD(SffFactoryController,createMem)
+{
+
+}
+
 
 PHP_METHOD(SffFactoryController,__destruct)
 {

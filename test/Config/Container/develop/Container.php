@@ -10,7 +10,7 @@ return [
     "user"=>"root",
     "daemon"=>false,
     "connect_server"=>true,
-    "container_ip"=>"127.0.0.1",
+    "container_ip"=>"103.85.21.220",
     "container_port"=>"8723",
     "process_pool"=>[
         "test1"=>[
