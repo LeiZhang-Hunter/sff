@@ -118,5 +118,9 @@ extern super_container container_instance;
 #include "sff_interface/sff_container.h"
 #endif
 
+#ifndef SFF_SFF_PDO_POOL_H
+#include "sff_interface/sff_pdo_pool.h"
+#endif
+
 
 
