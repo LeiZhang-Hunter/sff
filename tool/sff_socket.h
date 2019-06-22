@@ -41,7 +41,7 @@ typedef struct _sff_socket_lib{
     int (*setblock)(int fd);
 
     //读
-    ssize_t (*read)(int sock_fd,const void *vptr,size_t n);
+    ssize_t (*read)(int sock_fd,const void *vptr,size_t n,__time_t timeout);
 
     //写
     ssize_t (*write)(int sock_fd,const void *vptr,size_t n);
@@ -79,7 +79,7 @@ void call_hook();
 //关闭
 int sff_close(int fd);
 //读取
-ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n);
+ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n,__time_t timeout);
 
 //写入
 ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n);

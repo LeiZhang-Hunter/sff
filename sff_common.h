@@ -34,6 +34,7 @@
 #include <zend_exceptions.h>
 #endif
 
+#include <sys/prctl.h>
 
 
 #ifndef SFF_LOAD_FILE_H

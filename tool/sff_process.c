@@ -88,6 +88,13 @@ SFF_BOOL spawn(pid_t process_count) {
         return pid;
     }
 
+#ifdef __linux__
+    if(prctl(PR_SET_PDEATHSIG, SIGTERM) != 0)
+    {
+        zend_error(E_WARNING,"prctl error,errno:%d;msg:%s",errno,strerror(errno));
+    }
+#endif
+
     block->state = RUNNING;
 
     int res = container_instance.process_factory->exec(block->start_cmd);

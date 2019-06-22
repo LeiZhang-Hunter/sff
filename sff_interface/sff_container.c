@@ -16,6 +16,7 @@ const zend_function_entry factory_container_struct[] = {
         PHP_ME(SffContainer, stop, stop_index,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, processStopHook, process_stop_hook,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, report, send_data,  ZEND_ACC_PUBLIC)
+        PHP_ME(SffContainer,recv,NULL,ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, run, NULL,  ZEND_ACC_PUBLIC)
         PHP_ME(SffContainer, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
         PHP_FE_END
@@ -199,7 +200,37 @@ PHP_METHOD (SffContainer,report)
     }
 }
 
-void killprocess(int signo)
+
+PHP_METHOD (SffContainer,recv)
+{
+
+
+    //开启容器上报必须要打开远程链接
+//    php_printf("connect server:%d\n",container_instance.connect_server);
+    if(container_instance.connect_server != SFF_TRUE)
+    {
+        php_error_docref(NULL, E_WARNING, "report data must open server connect");
+        RETURN_FALSE
+    }
+
+    //检查是否是字符串
+    char buf[65535];
+    bzero(buf,65535);
+    //做数据发送处理
+    ssize_t res = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,buf,sizeof(buf),3);
+    if(res == SFF_FALSE)
+    {
+        RETURN_FALSE
+    }else{
+        //返回读取的字节数buffer
+        zval return_str;
+
+        zend_string* s= zend_string_init(buf,strlen(buf),0);
+        RETURN_STR(s)
+    }
+}
+
+static void killprocess(int signo)
 {
     if(signo == SIGTERM)
     {

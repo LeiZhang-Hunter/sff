@@ -48,6 +48,7 @@ ZEND_BEGIN_ARG_INFO_EX(send_data, 0, 0, 1)
                 ZEND_ARG_INFO(0, config_value)
 ZEND_END_ARG_INFO()
 
+
 //停止程序传入的停止索引
 ZEND_BEGIN_ARG_INFO_EX(stop_index, 0, 0, 1)
                 ZEND_ARG_INFO(0, config_value)
@@ -83,6 +84,8 @@ PHP_METHOD (SffContainer, processStopHook);
 //容器上报
 PHP_METHOD (SffContainer,report);
 
+//接收数据
+PHP_METHOD (SffContainer,recv);
 //停止进程
 PHP_METHOD (SffContainer, stop);
 

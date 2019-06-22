@@ -22,5 +22,15 @@ SFF_BOOL add_signal_handle(int signo, __sighandler_t sighandler_fun)
     container_instance.signal_factory->signal_pool[signo] = sighandler_fun;
 
     //设置这个信号处理函数
-    signal(signo,sighandler_fun);
+//    signal(signo,sighandler_fun);
+    struct sigaction act, act_g;
+
+    act.sa_handler = sighandler_fun;
+
+    act.sa_flags = 0;
+    if (sigaction(signo, &act, &act_g) < 0)
+    {
+        return SFF_FALSE;
+    }
+    return SFF_TRUE;
 }

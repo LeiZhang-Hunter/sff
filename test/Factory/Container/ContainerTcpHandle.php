@@ -49,6 +49,7 @@ class ContainerTcpHandle{
     }
 
     //收到数据的钩子
+    public function receiveHook($data)
     {
         var_dump($data);
         $config = ManageContainer::$instance->configInstance->getConfig();
@@ -88,10 +89,11 @@ class ContainerTcpHandle{
         $data = [];
         $data["enterprise_uuid"] = $enterprise_uuid;
         $data["password"] = md5(ManageContainer::$instance->encrypt->ssl_encrypt($password));
-        $data["type"] = "process";
+        $data["type"] = "client";
         $encry_data = ManageContainer::$instance->encrypt->ssl_encrypt($data).$this->config["split"];
         //发送验证
         $res = ManageContainer::$container->report($encry_data);
+        $data = ManageContainer::$container->recv();
     }
 
     //关闭socket时候触发的钩子

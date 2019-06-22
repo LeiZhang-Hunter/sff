@@ -272,7 +272,7 @@ CONTAINER_BOOL container_run() {
         //链接远程服务器
         int res = container_instance.socket_lib->connect();
         if (res == SFF_FALSE) {
-            php_error_docref(NULL, E_ERROR, "connect server error");
+            php_error_docref(NULL, E_ERROR, "connect %s:%d server error",container_instance.container_ip,container_instance.container_port);
             exit(-1);
         }
     }
@@ -306,6 +306,7 @@ CONTAINER_BOOL container_run() {
             process_count = process_count + 1;
         }
     }
+
 
 
 

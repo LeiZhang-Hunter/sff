@@ -89,7 +89,11 @@ int sff_socket_create()
 //当断线重连的时候进行重连
 void sff_reconnect()
 {
+
     int client_fd = container_instance.socket_lib->sockfd;
+
+    //关闭最初的描述符
+    container_instance.socket_lib->close(client_fd);
 
     int res;
 
@@ -169,7 +173,7 @@ int sff_socket_connect()
 
     if(res == 0)
     {
-        //还原描述符
+        //描述符返回错误码是0并且connect成功
         call_hook(container_instance.connect_hook);
         return SFF_TRUE;
     }
@@ -206,13 +210,14 @@ int sff_socket_connect()
         return SFF_FALSE;
     }
 
+    zend_error(E_WARNING,"connect ok 2,%d:%s",errno,strerror(errno));
     //触发成功的钩子
     call_hook(container_instance.connect_hook);
     return SFF_TRUE;
 }
 
 //读取
-ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n)
+ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n,__time_t timeout)
 {
     size_t nleft;
     ssize_t nread;
@@ -220,10 +225,29 @@ ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n)
     ptr = (char*)vptr;
     nleft = n;
 
+    fd_set read_set;
 
-    //如果说还有未读取的字节数，那么就应该继续读取
-    while(nleft > 0)
+    fd_set write_set;
+
+    struct timeval tval;
+
+
+    FD_ZERO(&read_set);
+
+    FD_SET(container_instance.socket_lib->sockfd,&read_set);
+
+    tval.tv_sec = timeout;
+    tval.tv_usec = 0;
+
+    int select_number;
+
+    //套接字数目
+    select_number = select(container_instance.socket_lib->sockfd+1,&read_set,&write_set,NULL,&tval);
+
+    if(select_number > 0)
     {
+//如果说还有未读取的字节数，那么就应该继续读取
+
         if((nread = recv(sock_fd,ptr,nleft,0)) < 0)
         {
             //如果说收到信号中断
@@ -231,27 +255,22 @@ ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n)
             {
                 nread = 0;
             }else{
+                zend_error(E_WARNING,"recv error,errno:%d;error msg:%s;server ip:%s;port:%d",errno,strerror(errno),container_instance.container_ip,container_instance.container_port);
                 return  SFF_FALSE;
             }
         }else if(nread == 0){
             //链接失败
-            php_error_docref(NULL, E_WARNING, "connect server error");
+            php_error_docref(NULL, E_WARNING, "read server %s:%d close",container_instance.container_ip,container_instance.container_ip);
 
             //重新链接
             container_instance.socket_lib->reconnect();
             //断开了链接
-            break;
-
-        }else{
-            //剩余需要读取的数目
-            nleft -= nread;
-
-            //指针偏移，继续向没有读取的位置偏移
-            ptr += nread;
+            return SFF_TRUE;
         }
+
     }
 
-    return (n-nleft);
+    return SFF_TRUE;
 }
 
 //写入
@@ -276,7 +295,7 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
                 nwrite = 0;
             }else if(errno == EWOULDBLOCK){
                 nwrite = 0;
-            }else if(errno == EBADF){
+            }else if(errno == EBADF || errno == EPIPE){
                 //执行重新链接
                 container_instance.socket_lib->reconnect();
             }else{
@@ -338,6 +357,7 @@ int sff_socket_run()
         if((err_res = getsockopt(container_instance.socket_lib->sockfd,SOL_SOCKET,SO_ERROR,&error,&len))> 0)
         {
             if(error > 0) {
+                zend_error(E_WARNING,"connect %s:%d error",container_instance.container_ip,container_instance.container_port);
                 //这个套接字已经坏掉了,就进行重新的链接一直到成功为止
                 if (errno == EBADF) {
                     container_instance.socket_lib->close(container_instance.socket_lib->sockfd);
@@ -349,7 +369,7 @@ int sff_socket_run()
             }
         }else if(err_res == 0){
             //开始读取数据
-            if((read_size = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,&read_buf,sizeof(read_buf))) > 0)
+            if((read_size = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,&read_buf,sizeof(read_buf),1)) > 0)
             {
                 //触发可读事件闭包函数
                 if(container_instance.receive_data_hook)
