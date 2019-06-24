@@ -386,10 +386,11 @@ int sff_socket_run()
                         receive_data;
                         zend_string * data_buf = zend_string_init(read_buf, strlen(read_buf), 0);
                         ZVAL_NEW_STR(&receive_data, data_buf);
-                        zend_string_release(data_buf);
                         args[0] = receive_data;
                         call_user_function_ex(EG(function_table), NULL, container_instance.receive_data_hook,
                                               &return_result, 1, args, 0, NULL);
+                        //在这里释放掉字符串
+                        zend_string_release(data_buf);
                     }
                 }
 
