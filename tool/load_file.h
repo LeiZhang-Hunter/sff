@@ -13,7 +13,7 @@ void include_file(const char* filename,zval *return_value_ptr);
 
 void get_file_execute_dir(char *buf);
 
-void get_file_data_to_hash_table(HashTable *ht, char *file_path);
+inline void get_file_data_to_hash_table(HashTable *ht, char *file_path);
 
 //获取文件名字
 const char* get_file_name(char* file_name);
