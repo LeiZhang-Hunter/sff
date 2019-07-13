@@ -173,13 +173,17 @@ inline void get_file_data_to_hash_table(HashTable *ht, char *file_path) {
                 //如果说是一个数组
                 if(Z_TYPE(include_file_result) == IS_ARRAY)
                 {
-                    file_key = zend_string_init(get_file_name(unit_file_stream_struct->d_name),strlen(get_file_name(unit_file_stream_struct->d_name)),0);
+                    const char* stream_file_name = get_file_name(unit_file_stream_struct->d_name);
+                    file_key = zend_string_init(stream_file_name,strlen(stream_file_name),0);
+                    free((char*)stream_file_name);
                     zend_hash_add(ht,file_key,&include_file_result);
                     zend_string_release(file_key);
                 }
             }
         }
     }
+
+    closedir(config_handle);
 }
 
 //获取文件名字
@@ -209,6 +213,7 @@ SFF_BOOL is_dir(char *path)
     {
         return SFF_FALSE;
     }else {
+        closedir(result);
         return SFF_TRUE;
     }
 }

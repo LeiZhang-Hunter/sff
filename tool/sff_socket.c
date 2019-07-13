@@ -290,7 +290,6 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
 
     nleft = n;
     signal(SIGPIPE, SIG_IGN);
-    php_printf("sock_fd:%d\n",sock_fd);
     while(nleft > 0)
     {
         if((nwrite = send(sock_fd,ptr,nleft,0)) < 0)
