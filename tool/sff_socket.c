@@ -248,24 +248,28 @@ ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n,__time_t timeout)
     {
 //如果说还有未读取的字节数，那么就应该继续读取
 
-        if((nread = recv(sock_fd,ptr,nleft,0)) < 0)
-        {
-            //如果说收到信号中断
-            if(errno == EINTR)
-            {
-                nread = 0;
-            }else{
-                zend_error(E_WARNING,"recv error,errno:%d;error msg:%s;server ip:%s;port:%d",errno,strerror(errno),container_instance.container_ip,container_instance.container_port);
-                return  SFF_FALSE;
-            }
-        }else if(nread == 0){
-            //链接失败
-            php_error_docref(NULL, E_WARNING, "read server %s:%d close",container_instance.container_ip,container_instance.container_ip);
+        if(FD_ISSET(sock_fd,&read_set)) {
 
-            //重新链接
-            container_instance.socket_lib->reconnect();
-            //断开了链接
-            return SFF_TRUE;
+            if ((nread = recv(sock_fd, ptr, nleft, 0)) < 0) {
+                //如果说收到信号中断
+                if (errno == EINTR) {
+                    nread = 0;
+                } else {
+                    zend_error(E_WARNING, "recv error,errno:%d;error msg:%s;server ip:%s;port:%d", errno,
+                               strerror(errno), container_instance.container_ip, container_instance.container_port);
+                    return SFF_FALSE;
+                }
+            } else if (nread == 0) {
+                //链接失败
+                php_error_docref(NULL, E_WARNING, "read server %s:%d close", container_instance.container_ip,
+                                 container_instance.container_ip);
+
+                //重新链接
+                container_instance.socket_lib->reconnect();
+                //断开了链接
+                return SFF_TRUE;
+            }
+
         }
 
     }
@@ -285,11 +289,14 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
     ptr = (char*)vptr;
 
     nleft = n;
-
+    signal(SIGPIPE, SIG_IGN);
+    php_printf("sock_fd:%d\n",sock_fd);
     while(nleft > 0)
     {
         if((nwrite = send(sock_fd,ptr,nleft,0)) < 0)
         {
+            php_printf("%d\n",errno);
+            break;
             if(errno == EINTR)
             {
                 nwrite = 0;
@@ -302,6 +309,10 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
                 return SFF_FALSE;
             }
         }else{
+//            if(errno == EPIPE){
+//                //执行重新链接
+//                container_instance.socket_lib->reconnect();
+//            }
             nleft -= nwrite;
 
             ptr += nwrite;
@@ -347,8 +358,9 @@ int sff_socket_run()
     n = select(container_instance.socket_lib->sockfd+1,&read_set,&write_set,NULL,&tval);
 
 
-    if(n > 0)
+    if(n > 0 && FD_ISSET(container_instance.socket_lib->sockfd,&read_set))
     {
+        php_printf("select num:%d\n",n);
         //如果说select大于0，那么有一种情况就是套接字可能已经被关闭了，但是服务端并不知道
         len = sizeof(error);
 
