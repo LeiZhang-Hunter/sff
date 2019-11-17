@@ -323,7 +323,7 @@ PHP_METHOD (SffContainer, start)
 //运行容器
 PHP_METHOD (SffContainer, run)
 {
-
+    int res;
     //安装信号处理器
     container_instance.signal_factory->add_signal_handle(SIGPIPE,SIG_IGN);
 
@@ -347,8 +347,33 @@ PHP_METHOD (SffContainer, run)
     //运行完成后记录pid
     char filepid[sizeof(container_instance.container_pid)+1];
     sprintf(filepid, "%d", container_instance.container_pid);
+    int fd = open(container_instance.pidfile,O_CREAT|O_RDWR,S_IRWXU);
+    if(fd < 0)
+    {
+        zend_error(E_USER_ERROR,"Open Pid File Error;Error path:%s",container_instance.pidfile);
+        exit(0);
+    }
     if(container_instance.pidfile) {
-        container_instance.log_lib->write_log(container_instance.pidfile, filepid, strlen(filepid),"w");
+        //写入文件之前检查是否已经上锁了
+        container_instance.container_guard.l_type = F_WRLCK;
+        container_instance.container_guard.l_whence = SEEK_SET;
+        container_instance.container_guard.l_start = 0;
+        container_instance.container_guard.l_len = 0;
+        //加锁，然后判断返回值，如果说已经加过锁了则判断进程已经启动了
+        res = fcntl(fd,F_SETLK,container_instance.container_guard);
+        if(res < 0)
+        {
+            if(errno == EACCES || errno == EAGAIN)
+            {
+                zend_error(E_USER_ERROR,"process has running");
+                exit(0);
+            }else{
+                zend_error(E_USER_ERROR,"pid file make failed");
+                exit(0);
+            }
+        }
+        write(fd,filepid,sizeof(filepid));
+//        sff_write_fd(fd,filepid,strlen(filepid));
     }
 
     //运行监控

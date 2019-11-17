@@ -57,6 +57,7 @@ CONTAINER_BOOL super_container_init() {
     //获取进程pid
     container_instance.container_pid = getpid();
 
+    bzero(&container_instance.container_guard,sizeof(struct flock));
     return CONTAINER_TRUE;
 }
 

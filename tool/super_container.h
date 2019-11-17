@@ -116,6 +116,9 @@ typedef struct{
 
     int send_buf;
 
+    //上锁标志
+    struct flock container_guard;
+
 }super_container;
 
 

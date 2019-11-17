@@ -84,7 +84,7 @@ void get_file_execute_dir(char *buf) {
  */
 //!string is illeagle, i need change his by sff string
 //遍历指定目录的目录树，然后编译php文件存放到hashtable当中
-inline void get_file_data_to_hash_table(HashTable *ht, char *file_path) {
+void get_file_data_to_hash_table(HashTable *ht, char *file_path) {
 
     DIR *config_handle;//目录文件句柄
     char file_path_cpy[MAXPATHLEN];//路径文件的复制
