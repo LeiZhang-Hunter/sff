@@ -269,7 +269,7 @@ ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n,__time_t timeout)
             } else if (nread == 0) {
                 //链接失败
                 php_error_docref(NULL, E_WARNING, "read server %s:%d close", container_instance.container_ip,
-                                 container_instance.container_ip);
+                                 container_instance.container_port);
 
                 //重新链接
                 container_instance.socket_lib->reconnect();
