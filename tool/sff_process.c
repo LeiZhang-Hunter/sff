@@ -75,7 +75,7 @@ SFF_BOOL spawn(pid_t process_count) {
     //动态传递参数
     char *argv[0];
 
-    if ((pid = fork()) < 0) {
+    if ((pid = vfork()) < 0) {
         return SFF_FALSE;
     } else if (pid) {
         block->state = RUNNING;
@@ -83,8 +83,8 @@ SFF_BOOL spawn(pid_t process_count) {
         block->pid = pid;
         block->sig_no = 0;
         block->exit_code = 0;
-        //触发启动的回调函数
-        container_instance.process_factory->start_hook(block);
+        //触发启动的回调函数(不要触发下面有触发)
+//        container_instance.process_factory->start_hook(block);
         return pid;
     }
 
@@ -103,7 +103,7 @@ SFF_BOOL spawn(pid_t process_count) {
         php_error_docref(NULL, E_WARNING, "%s start failed",block->process_name);
     }
     //程序运行正常结束
-    exit(0);
+    _exit(0);
 
     return CONTAINER_TRUE;
 }

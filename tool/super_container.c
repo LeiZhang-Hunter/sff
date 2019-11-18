@@ -308,11 +308,8 @@ CONTAINER_BOOL container_run() {
         }
     }
 
-
-
-
-
-    while (1) {
+    //如果说处于运行状态位
+    while (container_instance.init_state) {
 
         if(container_instance.connect_server == SFF_TRUE) {
             //开启循环
