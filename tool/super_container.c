@@ -191,6 +191,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                 //循环键值对写入需要操作的命令
                 zend_string * process_config_key;
                 zval * process_config_item;
+                int process_index = 0;//进程池索引
                 ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(config_item), process_config_key, process_config_item)
                         {
                             if (process_config_key == NULL) {
@@ -245,6 +246,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 
                                 //将进程的运行状态设置为0未运行
                                 slice->state = NO_RUNING;
+                                slice->index = process_index;
+                                process_index++;
                             }
 
                         }ZEND_HASH_FOREACH_END();
@@ -290,7 +293,7 @@ CONTAINER_BOOL container_run() {
 
             if(start->state == RUNNING)
             {
-                zend_error(NULL, E_WARNING, "process->pid:%d;process name:%s; process has been runing\n",start->pid,start->process_name);
+                zend_error( E_WARNING, "process->pid:%d;process name:%s; process has been runing\n",start->pid,start->process_name);
                 continue;
             }
 
