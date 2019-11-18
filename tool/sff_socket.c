@@ -219,7 +219,6 @@ int sff_socket_connect()
         return SFF_FALSE;
     }
 
-    zend_error(E_WARNING,"connect ok 2,%d:%s",errno,strerror(errno));
     //触发成功的钩子
     return call_hook(container_instance.connect_hook);
 }
