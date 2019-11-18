@@ -253,7 +253,7 @@ ssize_t sff_socket_read(int sock_fd,const void *vptr,size_t n,__time_t timeout)
 
     if(select_number > 0)
     {
-//如果说还有未读取的字节数，那么就应该继续读取
+        //如果说还有未读取的字节数，那么就应该继续读取
 
         if(FD_ISSET(sock_fd,&read_set)) {
 
@@ -296,7 +296,6 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
     ptr = (char*)vptr;
 
     nleft = n;
-    signal(SIGPIPE, SIG_IGN);
     while(nleft > 0)
     {
         if((nwrite = send(sock_fd,ptr,nleft,0)) < 0)
@@ -304,9 +303,11 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
             if(errno == EINTR)
             {
                 nwrite = 0;
+                continue;
             }else if(errno == EWOULDBLOCK){
                 nwrite = 0;
-            }else if(errno == EBADF || errno == EPIPE){
+                continue;
+            }else if(errno == EPIPE){
                 //执行重新链接
                 container_instance.socket_lib->reconnect();
             }else{
@@ -318,7 +319,6 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
             ptr += nwrite;
         }
     }
-
     return (n-nleft);
 }
 
@@ -383,6 +383,13 @@ int sff_socket_run()
             //开始读取数据
             if((read_size = container_instance.socket_lib->read(container_instance.socket_lib->sockfd,&read_buf,sizeof(read_buf),1)) > 0)
             {
+                //如果说读到了0个字节 说明已经断开链接了，这时候要做断线处理
+                if(read_size == 0)
+                {
+                    //重新连接
+                    container_instance.socket_lib->reconnect();
+                    return SFF_FALSE;
+                }
                 //触发可读事件闭包函数
                 if(container_instance.receive_data_hook)
                 {
@@ -413,5 +420,6 @@ int sff_socket_run()
 
     //删除掉描述符的监控下次重新加入
     FD_CLR(container_instance.socket_lib->sockfd,&read_set);
+    return SFF_TRUE;
 }
 
