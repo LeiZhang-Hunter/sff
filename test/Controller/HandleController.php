@@ -16,7 +16,6 @@ class HandleController{
     {
         $command = $data["action"];
         $index = (int)$data["index"];//进程的索引编号
-        var_dump($data);
         //获取进程信息
         if($command == "start")
         {

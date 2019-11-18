@@ -344,6 +344,7 @@ int sff_socket_run()
     size_t read_size;
 
     char read_buf[READBUF];
+    bzero(read_buf, sizeof(read_buf));
 
     SFF_BOOL connect_result;
 
@@ -360,7 +361,6 @@ int sff_socket_run()
 
     if(n > 0 && FD_ISSET(container_instance.socket_lib->sockfd,&read_set))
     {
-        php_printf("select num:%d\n",n);
         //如果说select大于0，那么有一种情况就是套接字可能已经被关闭了，但是服务端并不知道
         len = sizeof(error);
 

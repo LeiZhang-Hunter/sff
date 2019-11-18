@@ -259,21 +259,27 @@ PHP_METHOD (SffContainer, stop)
     }
 
     int index = stop_index->value.lval;
-    php_printf("index:%d\n",index);
     process_block* block = container_instance.process_pool_manager->mem->head + index;
     if(!block)
     {
         RETURN_FALSE
     }
 
-    block->state = STOPPED;
+    //检查进程是否已经不存在了 如果不存在则变为落地 停止
+    //让进程变为停止中
 
     //停止程序
     int res = kill(block->pid,SIGTERM);
     if(res == 0)
     {
+        block->state = STOPPING;
         RETURN_TRUE
     }else{
+        //如果说进程不存在说明进程已经停止了，那么落地程序
+        if(errno == ESRCH)
+        {
+            block->state = STOPPED;
+        }
         RETURN_FALSE
     }
 }
@@ -300,7 +306,7 @@ PHP_METHOD (SffContainer, start)
     }
 
     //如果进程正在运行之中为了防止程序重复运行必须要杀死原程序
-    if(block->state == RUNNING)
+    if(block->state == RUNNING || block->state == STOPPING)
     {
         php_error_docref(NULL, E_WARNING, "process has been run,please stop the process");
         RETURN_FALSE

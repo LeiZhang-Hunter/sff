@@ -288,6 +288,12 @@ CONTAINER_BOOL container_run() {
         process_block *start = pool->head;
         while (start) {
 
+            if(start->state == RUNNING)
+            {
+                zend_error(NULL, E_WARNING, "process->pid:%d;process name:%s; process has been runing\n",start->pid,start->process_name);
+                continue;
+            }
+
             //堆池子进行循环然后开始生产
             pid = container_instance.process_factory->spawn(process_count);
 
@@ -295,10 +301,6 @@ CONTAINER_BOOL container_run() {
             start->pid = pid;
             start->state = RUNNING;
 
-            //如果说start有数据则触发回调函数
-            if(pid > 0) {
-                container_instance.process_factory->start_hook(start);
-            }
             //进程启动后的回调函数
             start = start->next;
 
@@ -316,9 +318,6 @@ CONTAINER_BOOL container_run() {
             }
             //开始打开监控
             container_instance.process_factory->monitor();
-
-            //防止一直爆炸式刷新降低cpu负载
-            sleep(1);
         }
     }
     return CONTAINER_TRUE;

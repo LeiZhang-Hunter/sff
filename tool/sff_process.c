@@ -84,7 +84,7 @@ SFF_BOOL spawn(pid_t process_count) {
         block->sig_no = 0;
         block->exit_code = 0;
         //触发启动的回调函数(不要触发下面有触发)
-//        container_instance.process_factory->start_hook(block);
+        container_instance.process_factory->start_hook(block);
         return pid;
     }
 
@@ -182,8 +182,9 @@ SFF_BOOL monitor() {
                 //重新拉起这个进程
                 pid = container_instance.process_factory->spawn(block->index);
 
-            } else if (block->state == STOPPED) {
+            } else if (block->state == STOPPING) {
                 //就此停止这个进程,不做任何重启处理直接回收即可
+                block->state = STOPPED;
                 container_instance.process_factory->stop_hook(block);
             }
         }

@@ -17,9 +17,13 @@ class ContainerTcpHandle{
 
     private $handleController;
 
+    //进程池子
+    public static $process_pool = [];
+
     //进程启动时候的钩子
     public function processStartHook($process_info)
     {
+        $process_name = $process_info["process_name"];
         //将消息发送往云端让云端进行处理
         unset($process_info["start_cmd"]);
         unset($process_info["stop_cmd"]);
@@ -31,6 +35,8 @@ class ContainerTcpHandle{
         $send_data = ManageContainer::$instance->encrypt->ssl_encrypt($data).$this->config["split"];
         //将启动动作上报到云端
         $res = ManageContainer::$container->report($send_data);
+        //放入到进程池中
+        self::$process_pool[$process_name] = $data;
     }
 
     //进程关闭时候的钩子
@@ -38,6 +44,7 @@ class ContainerTcpHandle{
     {
         unset($process_info["start_cmd"]);
         unset($process_info["stop_cmd"]);
+        $process_name = $process_info["process_name"];
         $data = $process_info;
 
         //对数据进行加密
@@ -46,14 +53,14 @@ class ContainerTcpHandle{
         $send_data = ManageContainer::$instance->encrypt->ssl_encrypt($data).$this->config["split"];
         //将关闭的动作上报到云端
         $res = ManageContainer::$container->report($send_data);
+        self::$process_pool[$process_name] = $data;
     }
 
     //收到数据的钩子
     public function receiveHook($data)
     {
-        var_dump($data);
         $config = ManageContainer::$instance->configInstance->getConfig();
-        $deal_data = explode($config["split"],$data);
+        $deal_data = array_filter(explode($config["split"],$data));
         $len = count($deal_data);//计算数据长度
         foreach ($deal_data as $key=>$value)
         {
@@ -93,7 +100,32 @@ class ContainerTcpHandle{
         $encry_data = ManageContainer::$instance->encrypt->ssl_encrypt($data).$this->config["split"];
         //发送验证
         $res = ManageContainer::$container->report($encry_data);
+        if(!$res)
+        {
+            return false;
+        }
         $data = ManageContainer::$container->recv();
+        if(!$data)
+        {
+            return false;
+        }
+        $res = json_decode(trim($data),1);
+        if($res["code"] != 0)
+        {
+            return false;
+        }else{
+            //握手成功汇报所有进程的启动情况，可能服务器断开了，下面需要重新上报
+            if(self::$process_pool)
+            {
+                foreach(self::$process_pool as $process)
+                {
+                    $send_data = ManageContainer::$instance->encrypt->ssl_encrypt($process).$this->config["split"];
+                    //上报数据
+                    $res = ManageContainer::$container->report($send_data);
+                }
+            }
+            return true;
+        }
     }
 
     //关闭socket时候触发的钩子

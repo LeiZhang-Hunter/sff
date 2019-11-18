@@ -14,6 +14,7 @@
 #define RUNNING 1
 #define KILLED 2
 #define STOPPED 3
+#define STOPPING 4
 
 //进程名字
 #define SFF_PROCESS_NAME "process_name"
