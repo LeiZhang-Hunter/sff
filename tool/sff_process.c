@@ -75,7 +75,7 @@ SFF_BOOL spawn(pid_t process_count) {
     //动态传递参数
     char *argv[0];
 
-    if ((pid = vfork()) < 0) {
+    if ((pid = fork()) < 0) {
         return SFF_FALSE;
     } else if (pid) {
         block->state = RUNNING;
@@ -187,8 +187,6 @@ SFF_BOOL monitor() {
                 container_instance.process_factory->stop_hook(block);
             }
         }
-
-
     }
 
 }
@@ -318,6 +316,10 @@ int process_pool_destroy() {
             efree(start->process_name);
             efree(start->start_cmd);
             efree(start->stop_cmd);
+            //回收进程防止进程出现僵尸进程
+
+            int status;
+            waitpid(start->pid,&status,-1);
             start = start->next;
         }
     }

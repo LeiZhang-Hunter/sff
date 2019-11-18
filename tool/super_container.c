@@ -12,7 +12,7 @@ super_container container_instance;
 
 CONTAINER_BOOL super_container_init() {
 
-    if(container_instance.init_state == 1)
+    if(container_instance.init_state == CONTAINER_RUNNING)
     {
         php_error_docref(NULL, E_ERROR, "Container has been loading");
         return CONTAINER_FALSE;
@@ -21,7 +21,8 @@ CONTAINER_BOOL super_container_init() {
     //初始化这个结构体
     bzero(&container_instance, sizeof(super_container));
 
-    container_instance.init_state = 1;
+    //初始化状态为1
+    container_instance.init_state = CONTAINER_RUNNING;
 
     //初始化容器配置
     container_instance.set_container_config = set_container_config;
@@ -50,6 +51,7 @@ CONTAINER_BOOL super_container_init() {
     //初始化
     init_socket_lib();
 
+    //初始化日志库
     container_instance.log_lib = emalloc(sizeof(sff_log));
 
     init_log_lib();
@@ -271,7 +273,7 @@ CONTAINER_BOOL container_run() {
         container_instance.socket_lib->create();
 
         //链接远程服务器
-        int res = container_instance.socket_lib->connect();
+        SFF_BOOL res = container_instance.socket_lib->connect();
         if (res == SFF_FALSE) {
             php_error_docref(NULL, E_ERROR, "connect %s:%d server error",container_instance.container_ip,container_instance.container_port);
             exit(-1);
@@ -296,10 +298,7 @@ CONTAINER_BOOL container_run() {
             //如果说start有数据则触发回调函数
             if(pid > 0) {
                 container_instance.process_factory->start_hook(start);
-            }else{
-                container_instance.process_factory->stop_hook(start);//进程停止的钩子
             }
-
             //进程启动后的回调函数
             start = start->next;
 
@@ -310,17 +309,18 @@ CONTAINER_BOOL container_run() {
 
     //如果说处于运行状态位
     while (container_instance.init_state) {
+        if(container_instance.init_state == CONTAINER_RUNNING) {
+            if (container_instance.connect_server == SFF_TRUE) {
+                //开启循环
+                container_instance.socket_lib->loop_work();
+            }
+            //开始打开监控
+            container_instance.process_factory->monitor();
 
-        if(container_instance.connect_server == SFF_TRUE) {
-            //开启循环
-            container_instance.socket_lib->loop_work();
+            //防止一直爆炸式刷新降低cpu负载
+            sleep(1);
         }
-        //开始打开监控
-        container_instance.process_factory->monitor();
-
     }
-
-
     return CONTAINER_TRUE;
 }
 

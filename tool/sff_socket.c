@@ -107,9 +107,9 @@ void sff_reconnect()
 
 }
 
-void call_hook(zval* hook)
+SFF_BOOL call_hook(zval* hook)
 {
-//触发可读事件闭包函数
+    //触发可读事件闭包函数
     if(hook && container_instance.object)
     {
         //如果是闭包函数
@@ -125,8 +125,18 @@ void call_hook(zval* hook)
             args[0] = *container_instance.object;
             call_user_function_ex(EG(function_table), NULL, hook,
                                   &return_result, 1, args, 0, NULL);
+            if(Z_TYPE(return_result) == IS_FALSE)
+            {
+                return SFF_FALSE;
+            }else{
+                return SFF_TRUE;
+            }
+        }else{
+            zend_error( E_ERROR, "connect hook is not callable");
         }
     }
+    zend_error( E_ERROR, "connect hook is not registered");
+    return  SFF_FALSE;
 }
 
 //关闭
@@ -175,7 +185,7 @@ int sff_socket_connect()
     {
         //描述符返回错误码是0并且connect成功
         call_hook(container_instance.connect_hook);
-        return SFF_TRUE;
+         SFF_TRUE;
     }
 
     FD_ZERO(&read_set);
@@ -294,8 +304,6 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
     {
         if((nwrite = send(sock_fd,ptr,nleft,0)) < 0)
         {
-            php_printf("%d\n",errno);
-            break;
             if(errno == EINTR)
             {
                 nwrite = 0;
@@ -308,10 +316,6 @@ ssize_t sff_socket_write(int sock_fd,const void *vptr,size_t n)
                 return SFF_FALSE;
             }
         }else{
-//            if(errno == EPIPE){
-//                //执行重新链接
-//                container_instance.socket_lib->reconnect();
-//            }
             nleft -= nwrite;
 
             ptr += nwrite;

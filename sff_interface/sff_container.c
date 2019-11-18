@@ -239,12 +239,8 @@ static void killprocess(int signo)
         {
             container_instance.process_pool_manager->send_message(SIGTERM);
         }
-
-        //清理掉server_pid;
-        container_instance.log_lib->write_log(container_instance.pidfile, "0", strlen("0"),"w");
-
-        //最后关闭的是自己
-        kill(container_instance.container_pid,SIGKILL);
+        //关闭进程池
+        container_instance.init_state = CONTAINER_STOPPING;
     }
 }
 
@@ -379,13 +375,14 @@ PHP_METHOD (SffContainer, run)
 
     //运行监控
     container_instance.run();
+    //运行结束要销毁所有进程
+    container_instance.destroy();
 }
 
 
 //释放掉内存
 PHP_METHOD (SffContainer, __destruct)
 {
-    container_instance.destroy();
 }
 
 void factory_container_init()

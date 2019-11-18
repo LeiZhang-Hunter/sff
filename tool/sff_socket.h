@@ -74,7 +74,7 @@ int setnoblock(int fd);
 int setblock(int fd);
 
 //链接成功时候触发钩子
-void call_hook();
+SFF_BOOL call_hook();
 
 //关闭
 int sff_close(int fd);
