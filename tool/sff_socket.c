@@ -184,8 +184,7 @@ int sff_socket_connect()
     if(res == 0)
     {
         //描述符返回错误码是0并且connect成功
-        call_hook(container_instance.connect_hook);
-         SFF_TRUE;
+        return call_hook(container_instance.connect_hook);
     }
 
     FD_ZERO(&read_set);
@@ -222,8 +221,7 @@ int sff_socket_connect()
 
     zend_error(E_WARNING,"connect ok 2,%d:%s",errno,strerror(errno));
     //触发成功的钩子
-    call_hook(container_instance.connect_hook);
-    return SFF_TRUE;
+    return call_hook(container_instance.connect_hook);
 }
 
 //读取
