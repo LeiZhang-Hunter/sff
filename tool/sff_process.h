@@ -66,8 +66,6 @@ typedef struct _process_block{
 
     char *start_cmd;
 
-    char *pid_file;
-
     //索引号
     int index;
 

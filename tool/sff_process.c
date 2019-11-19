@@ -174,11 +174,6 @@ SFF_BOOL monitor() {
                 //触发停止的钩子
                 container_instance.process_factory->stop_hook(block);
 
-                //删除对应的pid文件防止启动不起来
-                if(block->pid_file) {
-                    unlink(block->pid_file);
-                }
-
                 //重新拉起这个进程
                 pid = container_instance.process_factory->spawn(block->index);
 
