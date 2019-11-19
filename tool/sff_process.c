@@ -311,7 +311,6 @@ int process_pool_destroy() {
         while (start) {
             efree(start->process_name);
             efree(start->start_cmd);
-            efree(start->stop_cmd);
             //回收进程防止进程出现僵尸进程
 
             int status;

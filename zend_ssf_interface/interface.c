@@ -55,7 +55,6 @@ SFF_BOOL convert_process_block_zval_array(process_block *block,zval *process_arr
     //复制字符串到缓冲区
     strcpy(process_name_back,block->process_name);
     strcpy(process_start_cmd,block->start_cmd);
-    strcpy(process_stop_cmd,block->stop_cmd);
     //加入进程名称
     ZVAL_LONG(&process_pid,block->pid);
     //退出码

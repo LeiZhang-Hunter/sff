@@ -62,8 +62,6 @@ typedef struct _process_block{
 
     char *process_name;
 
-    char *stop_cmd;
-
     char *start_cmd;
 
     //索引号

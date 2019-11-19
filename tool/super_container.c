@@ -223,16 +223,6 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
                                     php_error_docref(NULL, E_ERROR, "%s start command must not be null",slice->process_name);
                                 }
 
-                                //初始化停止命令
-                                zval * stop_cmd_info = zend_hash_str_find(process_info, "stop", strlen("stop"));
-                                if ((stop_cmd_info) && Z_TYPE(*stop_cmd_info) == IS_STRING) {
-                                    char *stop_cmd_str = emalloc(strlen(Z_STRVAL(*stop_cmd_info)) + 1);
-                                    strcpy(stop_cmd_str, Z_STRVAL(*stop_cmd_info));
-                                    slice->stop_cmd = stop_cmd_str;
-                                }else{
-                                    php_error_docref(NULL, E_ERROR, "%s stop command must not be null",slice->process_name);
-                                }
-
                                 //将进程的运行状态设置为0未运行
                                 slice->state = NO_RUNING;
                                 slice->index = process_index;
