@@ -27,25 +27,25 @@ ZEND_BEGIN_ARG_INFO_EX(config_before_function_struct, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 //Config的构造函数
-PHP_METHOD (Config, __construct);
+PHP_METHOD (SsfConfig, __construct);
 
 //获取Config的实例
-PHP_METHOD (Config, getInstance);
+PHP_METHOD (SsfConfig, getInstance);
 
 //初始化配置
-PHP_METHOD (Config, initConfig);
+PHP_METHOD (SsfConfig, initConfig);
 
 //注册在获取之前的操作处理
-PHP_METHOD(Config,regInitBeforeStep);
+PHP_METHOD(SsfConfig,regInitBeforeStep);
 
 //注册在获取配置之后的操作处理
-PHP_METHOD(Config,regInitAfterStep);
+PHP_METHOD(SsfConfig,regInitAfterStep);
 
 //获取配置文件
-PHP_METHOD(Config,getConfig);
+PHP_METHOD(SsfConfig,getConfig);
 
 //析构函数
-PHP_METHOD (Config, __destruct);
+PHP_METHOD (SsfConfig, __destruct);
 
 
 //定义需要的属性宏

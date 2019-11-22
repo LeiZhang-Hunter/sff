@@ -8,13 +8,13 @@
 
 
 const zend_function_entry config_class_struct[] = {
-        PHP_ME(Config, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
-        PHP_ME(Config, getInstance, config_option_struct, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-        PHP_ME(Config, initConfig, config_path_struct, ZEND_ACC_PUBLIC)
-        PHP_ME(Config, regInitBeforeStep, NULL, ZEND_ACC_PUBLIC)
-        PHP_ME(Config, regInitAfterStep, NULL, ZEND_ACC_PUBLIC)
-        PHP_ME(Config, getConfig, NULL, ZEND_ACC_PUBLIC)
-        PHP_ME(Config, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
+        PHP_ME(SsfConfig, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+        PHP_ME(SsfConfig, getInstance, config_option_struct, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+        PHP_ME(SsfConfig, initConfig, config_path_struct, ZEND_ACC_PUBLIC)
+        PHP_ME(SsfConfig, regInitBeforeStep, NULL, ZEND_ACC_PUBLIC)
+        PHP_ME(SsfConfig, regInitAfterStep, NULL, ZEND_ACC_PUBLIC)
+        PHP_ME(SsfConfig, getConfig, NULL, ZEND_ACC_PUBLIC)
+        PHP_ME(SsfConfig, __destruct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_DTOR)
         PHP_FE_END
 };
 
@@ -22,12 +22,12 @@ extern zend_class_entry *config_ce;
 zval config_instance;
 
 
-PHP_METHOD (Config, __construct) {
+PHP_METHOD (SsfConfig, __construct) {
 
 }
 
 //get Instance
-PHP_METHOD (Config, getInstance) {
+PHP_METHOD (SsfConfig, getInstance) {
     zval * single_option = NULL;//this opetion begin single model
     ZEND_PARSE_PARAMETERS_START(0, 1)
             Z_PARAM_OPTIONAL
@@ -56,7 +56,7 @@ PHP_METHOD (Config, getInstance) {
 }
 
 //inject before init function
-PHP_METHOD (Config, regInitBeforeStep) {
+PHP_METHOD (SsfConfig, regInitBeforeStep) {
     zval * beforeFunction = NULL;
     ZEND_PARSE_PARAMETERS_START(0, 1)
             Z_PARAM_OPTIONAL
@@ -73,7 +73,7 @@ PHP_METHOD (Config, regInitBeforeStep) {
 }
 
 //inject before finish function
-PHP_METHOD (Config, regInitAfterStep) {
+PHP_METHOD (SsfConfig, regInitAfterStep) {
     zval * beforeFunction = NULL;
     ZEND_PARSE_PARAMETERS_START(0, 1)
             Z_PARAM_OPTIONAL
@@ -90,7 +90,7 @@ PHP_METHOD (Config, regInitAfterStep) {
 
 
 //init Config
-PHP_METHOD (Config, initConfig) {
+PHP_METHOD (SsfConfig, initConfig) {
     zval * config_path = NULL;//folder dir
     ZEND_PARSE_PARAMETERS_START(0, 1)
             Z_PARAM_OPTIONAL
@@ -169,7 +169,7 @@ PHP_METHOD (Config, initConfig) {
     RETURN_TRUE
 }
 
-PHP_METHOD (Config, getConfig) {
+PHP_METHOD (SsfConfig, getConfig) {
     zval
     data;
     zval * ret;
@@ -184,13 +184,13 @@ PHP_METHOD (Config, getConfig) {
     RETURN_ZVAL(ret, 1, 0)
 }
 
-PHP_METHOD (Config, __destruct) {
+PHP_METHOD (SsfConfig, __destruct) {
 
 }
 
 void ssf_config_init() {
     //加载所需要的配置类
-    INIT_CLASS_ENTRY(config, "Config", config_class_struct);
+    INIT_CLASS_ENTRY(config, "SsfConfig", config_class_struct);
     config_ce = zend_register_internal_class_ex(&config, NULL);
     zend_declare_property_null(config_ce, SFF_BEFORE_HOOK, sizeof(SFF_BEFORE_HOOK) - 1, ZEND_ACC_PRIVATE TSRMLS_CC);
     zend_declare_property_null(config_ce, SFF_FINISH_HOOK, sizeof(SFF_FINISH_HOOK) - 1, ZEND_ACC_PRIVATE TSRMLS_CC);
