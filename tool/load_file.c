@@ -49,7 +49,7 @@ void include_file(const char *filename, zval *return_value_ptr) {
             }
             zend_catch
             {
-                php_error_docref(NULL, E_ERROR, "load file error");
+                php_error_docref(NULL, E_ERROR, "load file [%s] error",filename);
 //                        return_ret = 0;
             }
             zend_end_try();
@@ -57,10 +57,10 @@ void include_file(const char *filename, zval *return_value_ptr) {
             destroy_op_array(op_array);
             efree(op_array);
         }else{
-            php_error_docref(NULL, E_ERROR, "load file error");
+            php_error_docref(NULL, E_ERROR, "load file [%s] error",filename);
         }
     }else{
-        php_error_docref(NULL, E_ERROR, "load file error");
+        php_error_docref(NULL, E_ERROR, "load file [%s] error",filename);
     }
 }
 

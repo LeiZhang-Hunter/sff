@@ -126,6 +126,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
     }
 
     if (strcmp(CONTAINER_CONFIG_DAEMON, ZSTR_VAL(config_key)) == 0) {
+        convert_to_boolean(config_item);
         if (Z_TYPE(*config_item) == IS_TRUE) {
             container_instance.daemon = 1;
         } else {
@@ -135,6 +136,7 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 
     //查看是否需要进行远程链接如果不需要则不进行
     if (strcmp(CONTAINER_CONNECT_SERVER, ZSTR_VAL(config_key)) == 0) {
+        convert_to_boolean(config_item);
         if(Z_TYPE(*config_item) == IS_TRUE)
         {
             container_instance.connect_server = 1;
