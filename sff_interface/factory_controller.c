@@ -38,12 +38,10 @@ PHP_METHOD(SffFactoryController,createMem)
         php_error_docref(NULL, E_WARNING, "open file error");
         RETURN_FALSE
     }
-    php_printf("open fd:%d\n",fd);
     zval arr;
     array_init(&arr);
     int zero = 0;
     size_t res = write(fd,&arr,sizeof(zval));
-    php_printf("write bytes:%ld,errno:%d\n",res,errno);
     ptr = mmap(NULL,sizeof(zval),PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
     close(fd);
 
