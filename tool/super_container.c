@@ -290,6 +290,8 @@ CONTAINER_BOOL container_run() {
 
             //计数器循环+1
             process_count = process_count + 1;
+            //停止1秒
+            sleep(1);
         }
     }
 
