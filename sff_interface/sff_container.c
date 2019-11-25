@@ -46,7 +46,23 @@ PHP_METHOD (SffContainer, setConfig)
     //循环传进来的数组,将数组的值放入结构体之中,并且来检查参数
     zval *config_item;
     zend_string *config_key;
-    ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(config), config_key, config_item) {
+
+    //检查数组是否是空，如果是空的要进行错误提示
+    if(Z_TYPE(*config) != IS_ARRAY)
+    {
+        zend_throw_exception_ex(NULL, 1, "config must be array");
+        RETURN_FALSE;
+    }
+
+    HashTable* configTable =  Z_ARRVAL_P(config);
+
+    if(configTable->nNumUsed == 0)
+    {
+        zend_throw_exception_ex(NULL, 1, "config must be empty");
+        RETURN_FALSE;
+    }
+
+    ZEND_HASH_FOREACH_STR_KEY_VAL(configTable, config_key, config_item) {
                 if (config_key == NULL) {
                     continue;
                 }

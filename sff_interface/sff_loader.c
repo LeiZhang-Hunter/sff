@@ -222,7 +222,6 @@ PHP_METHOD (SuperAutoLoader, auto_monitoring) {
 
             }
         }
-
     }
     RETURN_FALSE
 }
