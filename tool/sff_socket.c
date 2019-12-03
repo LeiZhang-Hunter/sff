@@ -371,7 +371,7 @@ int sff_socket_run()
             if(error > 0) {
                 zend_error(E_WARNING,"connect %s:%d error",container_instance.container_ip,container_instance.container_port);
                 //这个套接字已经坏掉了,就进行重新的链接一直到成功为止
-                if (errno == EBADF) {
+                if (errno != EINTR) {
                     container_instance.socket_lib->close(container_instance.socket_lib->sockfd);
                     connect_result = container_instance.socket_lib->connect();
                     while (connect_result != SFF_TRUE) {
