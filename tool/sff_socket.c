@@ -12,6 +12,10 @@
 
 void init_socket_lib()
 {
+    if(!container_instance.socket_lib)
+    {
+        exit(-2);
+    }
     //初始化
     bzero(container_instance.socket_lib,sizeof(sff_socket_lib));
     container_instance.socket_lib->create = sff_socket_create;
@@ -331,6 +335,8 @@ int sff_socket_run()
 
     fd_set write_set;
 
+    fd_set expect_set;
+
     struct timeval tval;
 
     socklen_t  len;
@@ -341,7 +347,7 @@ int sff_socket_run()
 
     int err_res;
 
-    size_t read_size;
+    ssize_t read_size;
 
     char read_buf[READBUF];
     bzero(read_buf, sizeof(read_buf));
@@ -351,15 +357,17 @@ int sff_socket_run()
     FD_ZERO(&read_set);
 
     FD_SET(container_instance.socket_lib->sockfd,&read_set);
+    FD_SET(container_instance.socket_lib->sockfd,&write_set);
+    FD_SET(container_instance.socket_lib->sockfd,&expect_set);
 
     tval.tv_sec = 1;
     tval.tv_usec = 0;
 
 
-    n = select(container_instance.socket_lib->sockfd+1,&read_set,&write_set,NULL,&tval);
+    n = select(container_instance.socket_lib->sockfd+1,&read_set,&write_set,&expect_set,&tval);
 
 
-    if(n > 0 && FD_ISSET(container_instance.socket_lib->sockfd,&read_set))
+    if(n > 0 && (FD_ISSET(container_instance.socket_lib->sockfd,&read_set) || FD_ISSET(container_instance.socket_lib->sockfd,&expect_set)))
     {
         //如果说select大于0，那么有一种情况就是套接字可能已经被关闭了，但是服务端并不知道
         len = sizeof(error);

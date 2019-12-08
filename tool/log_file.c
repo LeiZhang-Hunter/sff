@@ -18,7 +18,7 @@ void init_log_lib(){
 
 int sff_write(char* pathname,char *content,size_t file_size,const char* mode)
 {
-    FILE* handel = fopen(container_instance.pidfile,mode);
+    FILE* handel = fopen(pathname,mode);
 
     if(!handel)
     {

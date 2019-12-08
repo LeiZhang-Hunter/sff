@@ -37,7 +37,6 @@ PHP_INI_END()
 #define CONTAINER_CONFIG_LOGFILE    "logfile"
 #define CONTAINER_CONFIG_LOGFILEMAXBYTES    "logfile_maxbytes"
 #define CONTAINER_CONFIG_LOGFILEBACKUPS "logfile_backups"
-#define CONTAINER_CONFIG_PIDFILE    "pidfile"
 #define CONTAINER_CONFIG_CHILDLOGDIR    "childlogdir"
 #define CONTAINER_CONFIG_MINFDS "minfds"
 #define CONTAINER_CONFIG_MINPROCS   "minprocs"
@@ -56,7 +55,6 @@ typedef struct{
     char *logfile;
     size_t logfile_maxbytes;
     int logfile_backups;
-    char *pidfile;
     char* childlogdir;
     int minfds;
     int minprocs;
@@ -121,6 +119,9 @@ typedef struct{
 
     //上锁标志
     struct flock container_guard;
+
+    //循环这些次数以后就发送一个心跳包，防止客户端挂掉
+    int loop_count;
 
 }super_container;
 

@@ -59,7 +59,6 @@ CONTAINER_BOOL super_container_init() {
     //获取进程pid
     container_instance.container_pid = getpid();
 
-    bzero(&container_instance.container_guard,sizeof(struct flock));
     return CONTAINER_TRUE;
 }
 
@@ -104,14 +103,6 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
         SET_CONTAINER_CONFIG_INT(container_instance, logfile_backups, config_item);
     }
 
-    if (strcmp(CONTAINER_CONFIG_PIDFILE, ZSTR_VAL(config_key)) == 0) {
-        //将pid写入文件当中
-        if(Z_TYPE(*config_item) == IS_STRING) {
-            SET_CONTAINER_CONFIG_STR(container_instance, pidfile, config_item);
-        }else{
-            php_error_docref(NULL, E_ERROR, "pid file must be string");
-        }
-    }
 
     if (strcmp(CONTAINER_CONFIG_CHILDLOGDIR, ZSTR_VAL(config_key)) == 0) {
         SET_CONTAINER_CONFIG_STR(container_instance, childlogdir, config_item);
@@ -243,6 +234,8 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 
 //开始运行容器
 CONTAINER_BOOL container_run() {
+    const char* heart_data="\xff\n";
+
 
     //获取到内存池地址
     process_pool *pool = container_instance.process_pool_manager->mem;
@@ -304,6 +297,17 @@ CONTAINER_BOOL container_run() {
             }
             //开始打开监控
             container_instance.process_factory->monitor();
+
+            sleep(2);
+
+            container_instance.loop_count++;
+
+            //2分钟后来一个心跳包70*2
+            if(container_instance.loop_count == 70)
+            {
+                container_instance.socket_lib->write(container_instance.socket_lib->sockfd,heart_data,strlen(heart_data));
+                container_instance.loop_count = 0;
+            }
         }
     }
     return CONTAINER_TRUE;
@@ -315,7 +319,6 @@ CONTAINER_BOOL destroy_container() {
     efree(container_instance.umask);
     efree(container_instance.directory);
     efree(container_instance.logfile);
-    efree(container_instance.pidfile);
     efree(container_instance.childlogdir);
     efree(container_instance.process_factory);
     efree(container_instance.signal_factory);
