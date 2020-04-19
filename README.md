@@ -27,10 +27,10 @@
         SuperAutoLoader::addNameSpace("Model",__ROOT__."/app/models");
         SuperAutoLoader::start_monitoring();
 
-        $configBuilder = new Config();
+        $configBuilder = new SsfConfig();
 
         //加载配置
-        //$configBuilder = new Config();
+        //$configBuilder = new SsfConfig();
 
         //初始化配置加载项
         $result = $configBuilder->initConfig();
