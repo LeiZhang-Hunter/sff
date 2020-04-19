@@ -281,21 +281,21 @@ PHP_METHOD (SffContainer, stop)
         RETURN_FALSE
     }
 
-    //检查进程是否已经不存在了 如果不存在则变为落地 停止
-    //让进程变为停止中
+    //进程已经变为了变为停止
+    if(block->state == STOPPED)
+    {
+        zend_error(E_WARNING, "process pid %d has been stopped", block->pid);
+        RETURN_FALSE
+    }
 
     //停止程序
+    block->state = STOPPING;
     int res = kill(block->pid,SIGTERM);
     if(res == 0)
     {
-        block->state = STOPPING;
         RETURN_TRUE
     }else{
         //如果说进程不存在说明进程已经停止了，那么落地程序
-        if(errno == ESRCH)
-        {
-            block->state = STOPPED;
-        }
         RETURN_FALSE
     }
 }
@@ -322,14 +322,20 @@ PHP_METHOD (SffContainer, start)
     }
 
     //如果进程正在运行之中为了防止程序重复运行必须要杀死原程序
-    if(block->state == RUNNING || block->state == STOPPING)
+    if(block->state == RUNNING)
     {
-        php_error_docref(NULL, E_WARNING, "process has been run,please stop the process");
+        zend_error(E_WARNING, "process %s(%d) has been run,please stop the process", block->process_name, block->pid);
         RETURN_FALSE
-    }else{
-        block->state = RUNNING;
+    }else if(block->state == STOPPING){
+        zend_error(E_WARNING, "process %s(%d) is stopping,please waitting the process stop", block->process_name, block->pid);
+        RETURN_FALSE
+    }else if(block->state == DORUN)
+    {
+        zend_error(E_WARNING, "process %s(%d) is running,please waitting the process rund", block->process_name, block->pid);
+        RETURN_FALSE
     }
 
+    block->state = DORUN;
 
     //重新拉起进程
     container_instance.process_factory->spawn(index);

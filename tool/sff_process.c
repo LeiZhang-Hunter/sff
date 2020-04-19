@@ -345,15 +345,17 @@ int send_message_pool(int signo)
     if (pool->head) {
         process_block *start = pool->head;
         while (start) {
-            if(kill(start->pid,signo) < 0)
-            {
-                if(signo == SIGTERM) {
-                    //将进程的状态位置设置为关闭防止再次被拉起来
-                    start->state = STOPPED;
+            if(signo == SIGTERM) {
+                //将进程的状态位置设置为关闭防止再次被拉起来
+                start->state = STOPPING;
+                if(kill(start->pid,signo) < 0)
+                {
+                    //标记发送失败
+                    php_error_docref(NULL, E_WARNING, "send signo failed,message:%s",strerror(errno));
                 }
-                //标记发送失败
-                php_error_docref(NULL, E_WARNING, "send signo failed,message:%s",strerror(errno));
+
             }
+
             start = start->next;
         }
     }
