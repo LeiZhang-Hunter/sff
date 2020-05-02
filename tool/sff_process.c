@@ -52,6 +52,8 @@ SFF_BOOL start_daemon() {
     //更改代码运行的根目录
     chdir("/");
 
+    make_container_pid_file();
+
     //创造空闲的描述符
     for (i = 0; i < 3; i++) {
         close(i);

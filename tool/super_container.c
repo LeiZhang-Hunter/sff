@@ -59,6 +59,8 @@ CONTAINER_BOOL super_container_init() {
     //获取进程pid
     container_instance.container_pid = getpid();
 
+    bzero(&container_instance.container_guard,sizeof(struct flock));
+
     return CONTAINER_TRUE;
 }
 
@@ -114,6 +116,15 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
 
     if (strcmp(CONTAINER_CONFIG_MINPROCS, ZSTR_VAL(config_key)) == 0) {
         SET_CONTAINER_CONFIG_INT(container_instance, minprocs, config_item);
+    }
+
+    if (strcmp(CONTAINER_CONFIG_PIDFILE, ZSTR_VAL(config_key)) == 0) {
+        //将pid写入文件当中
+        if(Z_TYPE(*config_item) == IS_STRING) {
+            SET_CONTAINER_CONFIG_STR(container_instance, pidfile, config_item);
+        }else{
+            php_error_docref(NULL, E_ERROR, "pid file must be string");
+        }
     }
 
     if (strcmp(CONTAINER_CONFIG_DAEMON, ZSTR_VAL(config_key)) == 0) {
@@ -232,6 +243,41 @@ CONTAINER_BOOL set_container_config(zend_string *config_key, zval *config_item) 
     }
 }
 
+CONTAINER_BOOL make_container_pid_file(){
+    container_instance.container_pid = getpid();
+
+    if(container_instance.pidfile) {
+        char filepid[sizeof(container_instance.container_pid)+1];
+        //运行完成后记录pid
+        sprintf(filepid, "%d", container_instance.container_pid);
+        int fd = open(container_instance.pidfile,O_CREAT|O_RDWR,S_IRWXU);
+        if(fd < 0)
+        {
+            zend_error(E_USER_ERROR,"Open Pid File Error;Error path:%s;errno:%d,errormsg:%s",container_instance.pidfile,errno,strerror(errno));
+            exit(0);
+        }
+        //写入文件之前检查是否已经上锁了
+        container_instance.container_guard.l_type = F_WRLCK;
+        container_instance.container_guard.l_whence = SEEK_SET;
+        container_instance.container_guard.l_start = 0;
+        container_instance.container_guard.l_len = 0;
+        //加锁，然后判断返回值，如果说已经加过锁了则判断进程已经启动了
+        int res = fcntl(fd,F_SETLK,&container_instance.container_guard);
+        if(res < 0)
+        {
+            if(errno == EACCES || errno == EAGAIN)
+            {
+                zend_error(E_USER_ERROR,"process has running");
+                exit(0);
+            }else{
+                zend_error(E_USER_ERROR,"pid file(%s) make failed;errno:%d,errormsg:%s",container_instance.pidfile,errno,strerror(errno));
+                exit(0);
+            }
+        }
+        write(fd,filepid,sizeof(filepid));
+    }
+}
+
 //开始运行容器
 CONTAINER_BOOL container_run() {
     const char* heart_data="\xff\n";
@@ -259,6 +305,14 @@ CONTAINER_BOOL container_run() {
 
 //    container_instance.socket_lib->write(container_instance.socket_lib->sockfd,"hahahah",strlen("hahahah"));
 
+    //守护进程开启
+    if(container_instance.daemon == SFF_TRUE)
+    {
+        container_instance.process_factory->start_daemon();
+
+    }else{
+        make_container_pid_file();
+    }
 
     //循环池子创建进程
     if (pool->head) {
@@ -287,6 +341,8 @@ CONTAINER_BOOL container_run() {
             sleep(1);
         }
     }
+
+
 
     //如果说处于运行状态位
     while (container_instance.init_state) {
@@ -323,6 +379,7 @@ CONTAINER_BOOL destroy_container() {
     efree(container_instance.process_factory);
     efree(container_instance.signal_factory);
     efree(container_instance.socket_lib);
+    efree(container_instance.pidfile);
     //销毁掉整个连接池
     if(container_instance.process_pool_manager) {
         container_instance.process_pool_manager->destroy_pool();

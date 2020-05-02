@@ -360,14 +360,7 @@ PHP_METHOD (SffContainer, run)
 
     container_instance.signal_factory->add_signal_handle(SIGUSR2,SIG_IGN);
 
-    //守护进程开启
-    if(container_instance.daemon == SFF_TRUE)
-    {
-        container_instance.process_factory->start_daemon();
-
-        container_instance.container_pid = getpid();
-    }
-
+    container_instance.container_pid = getpid();
 
     //运行监控
     container_instance.run();

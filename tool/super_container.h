@@ -47,6 +47,8 @@ PHP_INI_END()
 #define CONTAINER_PROCESS_POOL "process_pool"
 #define CONTAINER_RECV_BUF_SIZE "container_recv_buff"
 #define CONTAINER_SEND_BUF_SIZE "container_send_buff"
+#define CONTAINER_CONFIG_PIDFILE    "pidfile"
+
 //定义一个结构体
 typedef struct{
     char *user;//container的运行用户
@@ -110,6 +112,8 @@ typedef struct{
     zval *receive_data_hook;
 
     sff_log *log_lib;
+    //pid的存储文件
+    char *pidfile;
 
     pid_t container_pid;
 
@@ -152,6 +156,9 @@ CONTAINER_BOOL set_container_config(zend_string *config_key,zval* config_item);
 
 //运行容器
 CONTAINER_BOOL container_run();
+
+//生成pid
+CONTAINER_BOOL make_container_pid_file();
 
 //销毁容器
 CONTAINER_BOOL destroy_container();
