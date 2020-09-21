@@ -17,6 +17,10 @@ PHP_ARG_ENABLE(sff, whether to enable sff support,
 Make sure that the comment is aligned:
 [  --enable-sff           Enable sff support])
 
+AC_ARG_ENABLE(debug, AS_HELP_STRING([--enable-debug], [enable DEBUG mode(default=no)]),
+              [],
+              [enable_debug=no])
+
 if test "$PHP_SFF" != "no"; then
   dnl Write more examples of tests here...
 
